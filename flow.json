@@ -1,0 +1,1098 @@
+[
+    {
+        "id": "956095503019cbf0",
+        "type": "tab",
+        "label": "Fleet Manager",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "8154163f6bce10f3",
+        "type": "comment",
+        "z": "956095503019cbf0",
+        "name": "CHANGELOG",
+        "info": "FLEET MANAGER — CHANGELOG\n==========================\n\nv34 | 2026-04-07\n- Output box added to all 4 playbook-triggering modals:\n  Deploy flow, Deploy Wi-Fi, Deploy settings, Cache actions\n  Shows ansible output after run; button changes to Close on success\n\nv32 | 2026-04-07\n- Devices page: APT and NPM columns removed from table\n- Devices page: Refresh status button hidden\n- loadFacts no longer updates APT/NPM cells (hostname/MAC/OS still fetched)\n\nv31 | 2026-04-07\n- Fixed: Delete APT package was not removing name from packages.yml because\n  deleteApt() only sent {file}, not {file, name} to the DELETE endpoint\n\nv30 | 2026-04-07\n- Fixed: List NPM cache was showing APT packages because it read all list items\n  from packages.yml without scoping to the npm_packages section\n\nv28 | 2026-04-07\n- APT Cache table now only shows explicitly added packages (reads apt_packages\n  from vars/packages.yml, same pattern as NPM cache)\n- Download APT package appends name to apt_packages in packages.yml\n- Delete APT package removes name from apt_packages in packages.yml\n- install_apt.yml should use vars_files: packages.yml and apt_packages var\n\nv25c | 2026-04-07\n- NPM cache package list now persisted in vars/packages.yml instead of flow context\n- List NPM cache reads npm_packages from packages.yml\n- Cache NPM package appends to packages.yml on successful cache\n- Delete NPM package removes from packages.yml on delete\n\nv25b | 2026-04-07\n- Removed /-/all fallback from List NPM cache (Verdaccio returns all proxied\n  packages incl. transitive deps, not just top-level)\n- List now shows empty if flow context is empty — re-add packages to populate\n\nv25 | 2026-04-07\n- NPM Cache table now only shows user-added packages, not transitive dependencies\n- List NPM cache: reads from flow context (npmCachePackages); on first load with no\n  context, falls back to Verdaccio HTTP API (/-/all) and seeds context from result\n- Cache NPM package: stores package name in flow context on success\n- Delete NPM package: removes package name from flow context on success\n\nv24 | 2026-04-07\n- Install NPM: GUI now passes npm_package_list=<pkg1>,<pkg2> from the NPM Cache table\n  instead of letting the playbook query all Verdaccio storage (avoids transitive deps)\n\nv22 | 2026-04-07\n- Cache page: toolbar with Install APT and Update NPM buttons (no proxy buttons)\n- Control Pi IP dropdown in modals, populated from control Pi network interfaces\n  (os.networkInterfaces() injected as {{{controlPiIPs}}} at page load)\n- control_pi_ip passed as extra var to install_apt.yml and update_npm.yml\n- Removed Point APT+NPM and Reset APT+NPM from cache page\n  (still available in Run playbook tab)\n- update_npm.yml should use path:/home/pi/.node-red, become_user:pi, registry var\n- install_apt.yml should use apt proxy var instead of hardcoded proxy config\n\nv21 | 2026-04-07\n- WiFi page: Deploy button added to toolbar, opens target modal (fleet/group/device)\n- Flows tab renamed to NR-Flows\n- NR-Settings tab added: CRUD on /home/pi/fleet-management/files/*.js|json\n  - List, preview, create (paste/drag-drop), rename, edit, delete\n  - Deploy modal targets fleet/group/device via deploy_nodered_settings.yml\n  - GET/POST/PUT/DELETE /fleet/settings endpoints added\n\nv20 | 2026-04-07\n- Fixed: ANSIBLE_CONFIG env var prepended to all Ansible commands in Build ansible\n  command node and get facts node so Node-RED picks up ansible.cfg regardless of cwd\n- Fixed: --one-line flag removed from setup command (deprecated)\n- get facts parser updated to handle multi-line JSON output using brace-depth tracking\n\nv19 | 2026-04-07\n- Fixed: removeDevice function missing, Del button on Devices page was broken\n- Fixed: console.log not applied to showToast in this file (re-applied)\n\nv18 | 2026-04-07\n- console.log added to showToast and safeToast for easier traceability\n- Format: [toast] <msg> or [toast] [ERROR] <msg>\n\nv17 | 2026-04-07\n- Restored missing openAddModal / closeAddModal / submitAddDevice functions\n- Add device button on Devices page was broken due to missing functions\n\nv16 | 2026-04-07\n- Deploy flow modal: switched extra var from target_group/target_device to flow_file=<full path>\n- Added All devices (fleet) option to deploy target dropdown\n- Fixed :: separator to avoid conflicts with device names containing colons\n- Playbook deploy_flows.yml simplified to accept flow_file var directly, no filename matching\n\nv15 | 2026-04-07\n- Deploy selected on Flows page now opens a modal instead of a confirm dialog\n- Target dropdown populated from live inventory: All devices, Groups, Devices\n\nv14 | 2026-04-07\n- Flows page: full CRUD operations added\n  - Create: modal with dir selector, filename, drag-and-drop or paste JSON\n  - Rename: modal pre-filled with current filename\n  - Edit JSON: modal loads current content, supports drag-and-drop replacement\n  - Delete: confirm dialog with safety guard on path\n- POST / PUT / DELETE /fleet/flows Node-RED endpoints added\n\nv13 | 2026-04-07\n- Flows page: visual preview replaced canvas renderer with FlowFuse flow-renderer (index.min.js)\n- Script loaded via httpStatic from /home/pi/fleet-management/public/flow-renderer/index.min.js\n- Fallback error message shown if FlowRenderer not loaded\n\nv12 | 2026-04-07\n- Added Flows tab to nav bar\n- Flows page: file browser (groups/devices), visual preview using FlowFuse flow-renderer\n- GET /fleet/flows endpoint added (list files + read single file)\n- Deploy selected button fires deploy_flows.yml with limit\n\nv11 | 2026-04-07\n- Restored 7 missing functions from flows__7__:\n  openEdit, closeEdit, saveEdit, openSendCommandModal,\n  closeSendCommandModal, submitSendCommand, rebootDevice\n\nv10 | 2026-04-07\n- Removed pre-cache packages from run playbook dropdown\n- Install APT package: vars now Optional (installs all pre-cached by default)\n- Combined Point APT + NPM to control Pi into single option (configure_proxy_registry.yml)\n- Combined Reset APT + NPM to default into single option (reset_proxy_registry.yml)\n- Fixed extra_vars key mismatch in runPlaybook fetch payload (extra -> extra_vars)\n\nv9 | 2026-04-07\n- Groups page: removed Move devices button\n- Groups page: device chips are now draggable to reassign between groups\n- safeToast added as fallback for drag-and-drop handlers where showToast may not be in scope\n\nv8 | 2026-04-07\n- Groups page: Members column added showing device chips per group\n- Groups page: description persistence fixed using Node-RED flow context\n  (was in-memory only, wiped on reload)\n- Read inventory.ini node now injects groupDescriptions alongside inventory\n- Add group API now accepts and stores desc via flow.set\n\nv7 | 2026-04-07\n- Run playbook page: extra vars replaced with key/value table (checkbox, key, value per row)\n- Run playbook page: output moved to right side (side-by-side layout)\n\nv6 | 2026-04-07\n- Devices page: Send command button added per row\n- Send command modal: shell input, output box, runs via Ansible shell module (__shell__ playbook)\n- /fleet/run handler updated to support __shell__ command routing\n\nv5 | 2026-04-07\n- Devices page: bulk CSV import added (toolbar button, modal, preview, sequential POST)\n- Supported columns: group, ip, hostname\n\nv4 | 2026-04-07\n- Devices page: Reboot button added per row (amber, confirm dialog)\n- rebootDevice function fires reboot.yml limited to that device\n- btn-warning CSS added\n- Variables column removed from devices table\n\nv3 | 2026-04-07\n- Groups page redesigned to match Devices page pattern:\n  toolbar + full-width card table, + Add group modal\n- Set hostname removed from Run playbook dropdown\n- Set hostname field added to Edit device modal (runs set_hostname.yml on save)\n- saveEdit updated to fire hostname playbook if field filled\n\nINFRASTRUCTURE NOTES\n====================\nControl Pi:   Raspberry Pi OS 64-bit, Node-RED direct install, port 1880\nFleet UI:     http://<control-pi-ip>:1880/fleet\nUptime Kuma:  port 3001\nVerdaccio:    port 4873, storage /verdaccio/storage/data/\napt-cacher-ng: port 3142, cache /var/cache/apt-cacher-ng/\nInventory:    /home/pi/fleet-management/inventory.ini\nPlaybooks:    /home/pi/fleet-management/playbooks/\nFlows dir:    /home/pi/fleet-management/flows/\nStatic files: /home/pi/fleet-management/public/ (httpStatic in settings.js)\n",
+        "x": 130,
+        "y": 80,
+        "wires": []
+    },
+    {
+        "id": "f836b825ce5c7af2",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "GET /fleet",
+        "url": "/fleet",
+        "method": "get",
+        "upload": false,
+        "x": 120,
+        "y": 140,
+        "wires": [
+            [
+                "e33a811e9c0e512e"
+            ]
+        ]
+    },
+    {
+        "id": "e33a811e9c0e512e",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Read inventory.ini",
+        "func": "const fs = global.get('fs');\nconst { execSync } = global.get('child_process');\nconst iniPath = '/home/pi/fleet-management/inventory.ini';\nlet raw;\ntry { raw = fs.readFileSync(iniPath, 'utf8'); } catch(e) { node.error(e); msg.payload = 'Error reading inventory'; return msg; }\nconst lines = raw.split('\\n');\nconst groups = {};\nlet currentGroup = null;\nfor (let line of lines) {\n    line = line.trim();\n    if (!line || line.startsWith('#')) continue;\n    const groupMatch = line.match(/^\\[([^\\]:]+)\\]$/);\n    if (groupMatch) { currentGroup = groupMatch[1]; if (!groups[currentGroup]) groups[currentGroup] = []; continue; }\n    if (currentGroup && line.includes('ansible_host')) {\n        const parts = line.split(/\\s+/);\n        const name = parts[0];\n        const vars = {};\n        parts.slice(1).forEach(p => { const [k, v] = p.split('='); if (k && v) vars[k] = v; });\n        groups[currentGroup].push({ name, ...vars });\n    }\n}\nmsg.inventory = JSON.stringify(groups);\nmsg.groupDescriptions = JSON.stringify(flow.get('groupDescriptions') || {});\n\n// Collect non-internal IPv4 addresses using ip command\nconst ips = [];\ntry {\n    const ipOut = execSync('ip -4 addr show', { timeout: 5000 }).toString();\n    let currentIface = null;\n    ipOut.split('\\n').forEach(function(line) {\n        const ifaceMatch = line.match(/^\\d+:\\s+(\\S+):/);\n        if (ifaceMatch) { currentIface = ifaceMatch[1]; return; }\n        const addrMatch = line.match(/inet\\s+(\\d+\\.\\d+\\.\\d+\\.\\d+)\\/\\d+/);\n        if (addrMatch && currentIface && currentIface !== 'lo') {\n            ips.push({ iface: currentIface, address: addrMatch[1] });\n        }\n    });\n} catch(e) { node.warn('Could not get network interfaces: ' + e.message); }\nmsg.controlPiIPs = JSON.stringify(ips);\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 140,
+        "wires": [
+            [
+                "5307d2fceca5135e"
+            ]
+        ]
+    },
+    {
+        "id": "5307d2fceca5135e",
+        "type": "template",
+        "z": "956095503019cbf0",
+        "name": "Fleet Manager HTML",
+        "field": "payload",
+        "fieldType": "msg",
+        "format": "html",
+        "syntax": "mustache",
+        "template": "<!DOCTYPE html>\n<html lang=\"en\">\n\n<head>\n  <meta charset=\"UTF-8\">\n  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n  <title>Fleet Manager</title>\n  <style>\n    * {\n      box-sizing: border-box;\n      margin: 0;\n      padding: 0\n    }\n\n    body {\n      font-family: system-ui, sans-serif;\n      font-size: 14px;\n      color: #1a1a1a;\n      background: #f0f0f0\n    }\n\n    .topbar {\n      background: #fff;\n      border-bottom: 1px solid #e0e0e0;\n      padding: 0 24px;\n      display: flex;\n      align-items: center;\n      position: sticky;\n      top: 0;\n      z-index: 10\n    }\n\n    .tab {\n      padding: 14px 20px;\n      font-size: 13px;\n      cursor: pointer;\n      border-bottom: 2px solid transparent;\n      color: #666;\n      transition: color .15s;\n      user-select: none\n    }\n\n    .tab.active {\n      color: #185FA5;\n      border-bottom-color: #185FA5;\n      font-weight: 500\n    }\n\n    .tab:hover:not(.active) {\n      color: #1a1a1a\n    }\n\n    .page {\n      display: none;\n      padding: 24px\n    }\n\n    .page.active {\n      display: block\n    }\n\n    .card {\n      background: #fff;\n      border: 1px solid #e0e0e0;\n      border-radius: 12px;\n      padding: 20px;\n      margin-bottom: 16px\n    }\n\n    .card-title {\n      font-size: 11px;\n      font-weight: 600;\n      color: #888;\n      margin-bottom: 16px;\n      text-transform: uppercase;\n      letter-spacing: .06em\n    }\n\n    table {\n      width: 100%;\n      border-collapse: collapse;\n      font-size: 13px;\n      table-layout: fixed\n    }\n\n    th {\n      text-align: left;\n      padding: 8px 12px;\n      font-size: 11px;\n      font-weight: 600;\n      color: #888;\n      text-transform: uppercase;\n      letter-spacing: .05em;\n      border-bottom: 1px solid #e0e0e0\n    }\n\n    td {\n      padding: 10px 12px;\n      border-bottom: 1px solid #f0f0f0;\n      vertical-align: middle;\n      overflow: hidden;\n      text-overflow: ellipsis;\n      white-space: nowrap\n    }\n\n    tr:last-child td {\n      border-bottom: none\n    }\n\n    tr:hover td {\n      background: #fafafa\n    }\n\n    .badge {\n      display: inline-block;\n      padding: 2px 8px;\n      border-radius: 4px;\n      font-size: 11px;\n      font-weight: 500\n    }\n\n    .btn {\n      padding: 6px 14px;\n      border-radius: 8px;\n      border: 1px solid #ccc;\n      background: transparent;\n      cursor: pointer;\n      font-size: 13px;\n      color: #1a1a1a;\n      transition: background .12s\n    }\n\n    .btn:hover {\n      background: #f5f5f5\n    }\n\n    .btn:active {\n      transform: scale(.98)\n    }\n\n    .btn-sm {\n      padding: 4px 10px;\n      font-size: 12px\n    }\n\n    .btn-danger {\n      color: #A32D2D;\n      border-color: #F09595\n    }\n\n    .btn-warning {\n      color: #92400E;\n      border-color: #FCA34D\n    }\n\n    .btn-danger:hover {\n      background: #FCEBEB\n    }\n\n    .btn-primary {\n      background: #185FA5;\n      color: #fff;\n      border-color: #185FA5\n    }\n\n    .btn-primary:hover {\n      background: #0C447C\n    }\n\n    .btn-success {\n      background: #0F6E56;\n      color: #fff;\n      border-color: #0F6E56\n    }\n\n    .btn-success:hover {\n      background: #085041\n    }\n\n    .btn-nodered {\n      background: #8F0000;\n      color: #fff;\n      border-color: #8F0000\n    }\n\n    .btn-nodered:hover {\n      background: #6D0000\n    }\n\n    .form-group {\n      display: flex;\n      flex-direction: column;\n      gap: 4px;\n      margin-bottom: 12px\n    }\n\n    label {\n      font-size: 12px;\n      color: #666;\n      font-weight: 500\n    }\n\n    input,\n    select {\n      padding: 8px 10px;\n      border: 1px solid #ccc;\n      border-radius: 8px;\n      font-size: 13px;\n      background: #fff;\n      color: #1a1a1a;\n      width: 100%\n    }\n\n    input:focus,\n    select:focus {\n      outline: none;\n      border-color: #185FA5;\n      box-shadow: 0 0 0 2px rgba(24, 95, 165, .15)\n    }\n\n    input[readonly] {\n      background: #f5f5f5;\n      color: #888\n    }\n\n    .output-box {\n      background: #1a1a1a;\n      border-radius: 8px;\n      padding: 16px;\n      font-family: monospace;\n      font-size: 12px;\n      min-height: 200px;\n      white-space: pre-wrap;\n      color: #e0e0e0;\n      line-height: 1.7\n    }\n\n    .status-dot {\n      width: 8px;\n      height: 8px;\n      border-radius: 50%;\n      display: inline-block;\n      margin-right: 6px;\n      vertical-align: middle;\n      flex-shrink: 0\n    }\n\n    .dot-online {\n      background: #1D9E75\n    }\n\n    .dot-offline {\n      background: #E24B4A\n    }\n\n    .dot-pending {\n      background: #ccc\n    }\n\n    .toolbar {\n      display: flex;\n      align-items: center;\n      justify-content: space-between;\n      margin-bottom: 16px;\n      gap: 12px\n    }\n\n    .search {\n      padding: 7px 12px;\n      border: 1px solid #ccc;\n      border-radius: 8px;\n      font-size: 13px;\n      width: 240px;\n      background: #fff\n    }\n\n    .two-col {\n      display: grid;\n      grid-template-columns: 1fr 1fr;\n      gap: 16px\n    }\n\n    .three-col {\n      display: grid;\n      grid-template-columns: 1fr 1fr 1fr;\n      gap: 12px\n    }\n\n    .meta {\n      font-size: 11px;\n      color: #999;\n      margin-top: 3px\n    }\n\n    .toast {\n      position: fixed;\n      bottom: 24px;\n      right: 24px;\n      background: #0F6E56;\n      color: #fff;\n      padding: 10px 18px;\n      border-radius: 8px;\n      font-size: 13px;\n      display: none;\n      z-index: 200\n    }\n\n    .toast.error {\n      background: #A32D2D\n    }\n\n    .ping-summary {\n      font-size: 12px;\n      color: #666;\n      padding: 4px 10px;\n      border: 1px solid #e0e0e0;\n      border-radius: 6px;\n      background: #fff\n    }\n\n    .cache-empty {\n      text-align: center;\n      padding: 32px;\n      color: #aaa;\n      font-size: 13px\n    }\n\n    .spinner {\n      display: inline-block;\n      width: 12px;\n      height: 12px;\n      border: 2px solid #ccc;\n      border-top-color: #185FA5;\n      border-radius: 50%;\n      animation: spin .7s linear infinite;\n      vertical-align: middle;\n      margin-right: 6px\n    }\n\n    @keyframes spin {\n      to {\n        transform: rotate(360deg)\n      }\n    }\n\n    .pkg-size {\n      font-size: 11px;\n      color: #aaa;\n      font-family: monospace\n    }\n\n    .modal-wrap {\n      position: fixed;\n      inset: 0;\n      background: rgba(0, 0, 0, .4);\n      z-index: 100;\n      display: flex;\n      align-items: center;\n      justify-content: center\n    }\n\n    .modal {\n      background: #fff;\n      border-radius: 12px;\n      padding: 24px;\n      width: 440px;\n      border: 1px solid #e0e0e0\n    }\n\n    .modal-title {\n      font-size: 15px;\n      font-weight: 500;\n      margin-bottom: 16px\n    }\n\n    .modal-actions {\n      display: flex;\n      gap: 8px;\n      justify-content: flex-end;\n      margin-top: 16px\n    }\n  </style>\n  <script type=\"module\">\n    // import FlowRenderer from '/home/pi/fleet-management/public/flow-renderer/index.min.js';\n    import FlowRenderer from '/flow-renderer/index.min.js';\n    window.FlowRenderer = FlowRenderer;\n  </script>\n</head>\n\n<body>\n\n  <div class=\"topbar\">\n    <div class=\"tab active\" onclick=\"showPage('devices',this)\">Devices</div>\n    <div class=\"tab\" onclick=\"showPage('groups',this)\">Groups</div>\n    <div class=\"tab\" style=\"display:none;\" onclick=\"showPage('playbooks',this)\">Run playbook</div>\n    <div class=\"tab\" onclick=\"showPage('cache',this)\">Cache</div>\n    <div class=\"tab\" onclick=\"showPage('wifi',this)\">WiFi</div>\n    <div class=\"tab\" onclick=\"showPage('flows',this)\">NR-Flows</div>\n    <div class=\"tab\" onclick=\"showPage('nrsettings',this)\">NR-Settings</div>\n  </div>\n\n  <div id=\"page-devices\" class=\"page active\">\n    <div class=\"toolbar\">\n      <input class=\"search\" placeholder=\"Search devices, IPs, groups...\" oninput=\"renderTable(this.value)\" />\n      <div style=\"display:flex;align-items:center;gap:8px\">\n        <span class=\"ping-summary\" id=\"ping-summary\">Checking status...</span>\n        <button class=\"btn btn-sm\" onclick=\"pingAll()\" style=\"display:none\">Refresh status</button>\n        <button class=\"btn btn-sm\" onclick=\"loadFacts()\" id=\"facts-btn\">Refresh details</button>\n        <button class=\"btn btn-sm\" onclick=\"openImportModal()\">Import CSV</button>\n        <button class=\"btn btn-primary btn-sm\" onclick=\"openAddModal()\">+ Add device</button>\n      </div>\n    </div>\n    <div class=\"card\" style=\"padding:0;overflow:hidden;overflow-x:auto\">\n      <table>\n        <thead>\n          <tr>\n            <th style=\"width:90px\">Status</th>\n            <th style=\"width:100px\">Device</th>\n            <th style=\"width:100px\">IP address</th>\n            <th style=\"width:100px\">Group</th>\n            <th style=\"width:100px\">Hostname</th>\n            <th style=\"width:100px\">MAC address</th>\n            <th style=\"width:100px\">OS</th>\n            <th style=\"width:220px\"></th>\n          </tr>\n        </thead>\n        <tbody id=\"device-tbody\"></tbody>\n      </table>\n    </div>\n  </div>\n\n  <div id=\"page-groups\" class=\"page\">\n    <div class=\"toolbar\">\n      <span style=\"font-size:13px;color:#888\">Manage device groups. Groups with devices must be emptied before removal.</span>\n      <button class=\"btn btn-primary btn-sm\" onclick=\"openAddGroupModal()\">+ Add group</button>\n    </div>\n    <div class=\"card\" style=\"padding:0;overflow:hidden\">\n      <table>\n        <thead>\n          <tr>\n            <th style=\"width:120px\">Group</th>\n            <th style=\"width:60px\">Count</th>\n            <th>Members</th>\n            <th>Description</th>\n            <th style=\"width:200px\"></th>\n          </tr>\n        </thead>\n        <tbody id=\"groups-tbody\"></tbody>\n      </table>\n    </div>\n  </div>\n\n  <div id=\"page-playbooks\" class=\"page\">\n    <div style=\"display:flex;gap:16px;align-items:flex-start\">\n    <div class=\"card\" style=\"flex:1;min-width:0\">\n      <div class=\"card-title\">Playbook runner</div>\n      <div class=\"two-col\" style=\"margin-bottom:12px\">\n        <div class=\"form-group\"><label>Playbook</label>\n          <select id=\"run-playbook\" onchange=\"updatePlaybookInfo()\">\n          <option value=\"\">-- Select a playbook --</option>\n          <option value=\"playbooks/install_npm.yml\">Install NPM modules</option>\n          <option value=\"playbooks/install_apt.yml\">Install APT package</option>\n          <option value=\"playbooks/deploy_nodered_settings.yml\">Deploy Node-RED settings</option>\n          <option value=\"playbooks/deploy_flows.yml\">Deploy flows</option>\n          <option value=\"playbooks/set_wifi.yml\">Set Wi-Fi credentials</option>\n          <option value=\"playbooks/configure_proxy_registry.yml\">Point APT + NPM to control Pi</option>\n          <option value=\"playbooks/reset_proxy_registry.yml\">Reset APT + NPM to default</option>\n        </select>\n        </div>\n        <div class=\"form-group\"><label>Target</label>\n          <select id=\"run-target-type\" onchange=\"updateTargetFields()\">\n          <option value=\"fleet\">All devices</option>\n          <option value=\"group\">Group</option>\n          <option value=\"device\">Single device</option>\n        </select>\n        </div>\n      </div>\n      <div class=\"two-col\" style=\"margin-bottom:16px\">\n        <div class=\"form-group\" id=\"run-group-wrap\" style=\"display:none\">\n          <label>Group</label><select id=\"run-group\"></select></div>\n        <div class=\"form-group\" id=\"run-device-wrap\" style=\"display:none\">\n          <label>Device</label><select id=\"run-device\"></select></div>\n      </div>\n      <div id=\"playbook-info\" style=\"margin-bottom:16px;padding:12px 14px;background:#f8f8f8;border-radius:8px;border:1px solid #e0e0e0;display:none\">\n        <div style=\"font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px\" id=\"playbook-info-title\"></div>\n        <div style=\"font-size:13px;color:#444;line-height:1.6;margin-bottom:4px\" id=\"playbook-info-desc\"></div>\n        <div id=\"playbook-info-vars\" style=\"font-size:12px;color:#185FA5;font-family:monospace;margin-top:4px;display:none\"></div>\n      </div>\n      <div class=\"form-group\" style=\"margin-bottom:16px\">\n        <label style=\"margin-bottom:8px;display:block\">Extra vars</label>\n        <table style=\"width:100%;border-collapse:collapse\" id=\"extra-vars-table\">\n          <thead>\n            <tr>\n              <th style=\"width:32px\"></th>\n              <th style=\"text-align:left;font-weight:500;font-size:12px;color:#888;padding:4px 8px\">Key</th>\n              <th style=\"text-align:left;font-weight:500;font-size:12px;color:#888;padding:4px 8px\">Value</th>\n            </tr>\n          </thead>\n          <tbody id=\"extra-vars-tbody\"></tbody>\n        </table>\n        <button class=\"btn btn-sm\" style=\"margin-top:8px\" onclick=\"addExtraVarRow()\">+ Add var</button>\n      </div>\n      <div style=\"display:flex;align-items:center;gap:12px\">\n        <button class=\"btn btn-primary\" onclick=\"runPlaybook()\">Run playbook</button>\n        <span id=\"run-status\" style=\"font-size:12px;color:#666\"></span>\n      </div>\n    </div>\n    <div class=\"card\" style=\"flex:1;min-width:0\">\n      <div class=\"card-title\">Output</div>\n      <div class=\"output-box\" id=\"run-output\">Playbook output will appear here...</div>\n    </div>\n    </div>\n  </div>\n\n  <div id=\"page-cache\" class=\"page\">\n    <div class=\"toolbar\">\n      <span style=\"font-size:13px;color:#888\">Manage APT and NPM package caches on the control Pi.</span>\n      <div style=\"display:flex;gap:8px\">\n        <button class=\"btn btn-sm\" onclick=\"openCacheActionModal('install_apt')\">Install APT packages</button>\n        <button class=\"btn btn-sm btn-primary\" onclick=\"openCacheActionModal('install_npm')\">Install NPM modules</button>\n      </div>\n    </div>\n    <div class=\"two-col\">\n      <div>\n        <div class=\"card\">\n          <div class=\"card-title\">APT cache (apt-cacher-ng)</div>\n          <div class=\"form-group\" style=\"margin-bottom:8px\">\n            <input id=\"apt-search\" placeholder=\"Search packages...\" oninput=\"filterApt(this.value)\" />\n          </div>\n          <div style=\"display:flex;gap:8px;margin-bottom:16px\">\n            <input id=\"apt-add-name\" placeholder=\"Package name (e.g. htop)\" style=\"flex:1\" />\n            <button class=\"btn btn-primary\" onclick=\"addApt()\" id=\"apt-add-btn\">Add</button>\n          </div>\n          <div id=\"apt-list\">\n            <div class=\"cache-empty\">Loading...</div>\n          </div>\n        </div>\n      </div>\n      <div>\n        <div class=\"card\">\n          <div class=\"card-title\">NPM cache (Verdaccio)</div>\n          <div class=\"form-group\" style=\"margin-bottom:8px\">\n            <input id=\"npm-search\" placeholder=\"Search packages...\" oninput=\"filterNpm(this.value)\" />\n          </div>\n          <div style=\"display:flex;gap:8px;margin-bottom:16px\">\n            <input id=\"npm-add-name\" placeholder=\"Package name (e.g. node-red-dashboard)\" style=\"flex:1\" />\n            <button class=\"btn btn-primary\" onclick=\"addNpm()\" id=\"npm-add-btn\">Add</button>\n          </div>\n          <div id=\"npm-list\">\n            <div class=\"cache-empty\">Loading...</div>\n          </div>\n        </div>\n      </div>\n    </div>\n  </div>\n<div id=\"page-wifi\" class=\"page\">\n  <div class=\"toolbar\">\n    <span style=\"font-size:13px;color:#888\">Manage saved Wi-Fi profiles. Deploy pushes all profiles to target devices via set_wifi.yml.</span>\n    <div style=\"display:flex;gap:8px\">\n      <button class=\"btn btn-sm\" onclick=\"openDeployWifiModal()\">Deploy to...</button>\n      <button class=\"btn btn-primary btn-sm\" onclick=\"openAddWifiModal()\">+ Add network</button>\n    </div>\n  </div>\n  <div class=\"card\" style=\"padding:0;overflow:hidden\">\n    <table>\n      <thead>\n        <tr>\n          <th>SSID</th>\n          <th style=\"width:140px\">Security</th>\n          <th style=\"width:80px\">Priority</th>\n          <th style=\"width:80px\">Hidden</th>\n          <th style=\"width:120px\"></th>\n        </tr>\n      </thead>\n      <tbody id=\"wifi-tbody\"></tbody>\n    </table>\n  </div>\n</div>\n  <div class=\"toast\" id=\"toast\"></div>\n\n  <div id=\"page-flows\" class=\"page\">\n    <div class=\"toolbar\">\n      <span style=\"font-size:13px;color:#888\">Browse and deploy Node-RED flow files from the flows/ directory.</span>\n      <div style=\"display:flex;gap:8px\">\n        <button class=\"btn btn-sm\" onclick=\"openCreateFlowModal()\">+ New flow</button>\n        <button class=\"btn btn-primary btn-sm\" id=\"flows-deploy-btn\" onclick=\"deploySelectedFlow()\" disabled>Deploy selected</button>\n      </div>\n    </div>\n    <div style=\"display:flex;gap:16px;align-items:flex-start\">\n      <div class=\"card\" style=\"width:260px;flex-shrink:0;padding:0;overflow:hidden\">\n        <div style=\"padding:10px 14px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;border-bottom:0.5px solid #e0e0e0\">Flow files</div>\n        <div id=\"flows-list\" style=\"overflow-y:auto\"></div>\n      </div>\n      <div class=\"card\" style=\"flex:1;min-width:0;padding:0;overflow:hidden\">\n        <div style=\"display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid #e0e0e0\">\n          <div style=\"font-size:13px;font-weight:500;color:#444\" id=\"flows-preview-title\">Select a file to preview</div>\n          <div style=\"font-size:12px;color:#aaa\" id=\"flows-preview-meta\"></div>\n        </div>\n        <div id=\"flows-preview-empty\" style=\"color:#bbb;font-size:13px;padding:48px 24px;text-align:center\">Select a flow file from the list to preview its contents.</div>\n        <div id=\"flows-renderer-container\" class=\"flow-renderer\" style=\"display:none;height:calc(100vh - 170px);width:100%;overflow:auto\"></div>\n      </div>\n    </div>\n  </div>\n\n  <div id=\"page-nrsettings\" class=\"page\">\n    <div class=\"toolbar\">\n      <span style=\"font-size:13px;color:#888\">Manage Node-RED settings files and deploy to target devices.</span>\n      <div style=\"display:flex;gap:8px\">\n        <button class=\"btn btn-sm\" onclick=\"openCreateSettingsModal()\">+ New settings</button>\n        <button class=\"btn btn-primary btn-sm\" id=\"settings-deploy-btn\" onclick=\"deploySelectedSettings()\" disabled>Deploy selected</button>\n      </div>\n    </div>\n    <div style=\"display:flex;gap:16px;align-items:flex-start\">\n      <div class=\"card\" style=\"width:260px;flex-shrink:0;padding:0;overflow:hidden\">\n        <div style=\"padding:10px 14px;font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;border-bottom:0.5px solid #e0e0e0\">Settings files</div>\n        <div id=\"settings-list\" style=\"max-height:520px;overflow-y:auto\"></div>\n      </div>\n      <div class=\"card\" style=\"flex:1;min-width:0;padding:0;overflow:hidden\">\n        <div style=\"display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:0.5px solid #e0e0e0\">\n          <div style=\"font-size:13px;font-weight:500;color:#444\" id=\"settings-preview-title\">Select a file to preview</div>\n          <div style=\"font-size:12px;color:#aaa\" id=\"settings-preview-meta\"></div>\n        </div>\n        <div id=\"settings-preview-empty\" style=\"color:#bbb;font-size:13px;padding:48px 24px;text-align:center\">Select a settings file from the list to preview its contents.</div>\n        <div id=\"settings-preview-content\" style=\"display:none;padding:14px\">\n          <pre id=\"settings-preview-raw\" style=\"background:#f8f8f8;border:1px solid #e0e0e0;border-radius:6px;padding:12px;font-size:11px;max-height:480px;overflow:auto;white-space:pre-wrap;word-break:break-all\"></pre>\n        </div>\n      </div>\n    </div>\n  </div>\n\n  <script>\n    let inventory = {{{inventory}}};\nconst groupDescriptions = {{{groupDescriptions}}};\nwindow._controlPiIPs = {{{controlPiIPs}}};\nconst pingStatus = {};\nlet aptPackages = [];\nlet npmPackages = [];\n\nconst GROUP_COLORS = [\n  {bg:'#E1F5EE',color:'#085041'},{bg:'#E6F1FB',color:'#0C447C'},\n  {bg:'#EEEDFE',color:'#3C3489'},{bg:'#FAEEDA',color:'#633806'},\n  {bg:'#FAECE7',color:'#712B13'},{bg:'#EAF3DE',color:'#27500A'}\n];\nconst groupColorMap = {};\nlet colorIdx = 0;\n\nfunction getGroupColor(g){\n  if(!groupColorMap[g]) groupColorMap[g] = GROUP_COLORS[colorIdx++ % GROUP_COLORS.length];\n  return groupColorMap[g];\n}\nfunction getGroups(){ return Object.keys(inventory).filter(g=>!g.includes(':')); }\nfunction getAllDevices(){ return getGroups().flatMap(g=>(inventory[g]||[]).map(d=>({...d,group:g}))); }\n\nfunction renderTable(filter=''){\nconst tbody = document.getElementById('device-tbody');\nlet devs = getAllDevices();\nif(filter) devs = devs.filter(d=>\nd.name.toLowerCase().includes(filter.toLowerCase())||\n(d.ansible_host||'').includes(filter)||\nd.group.toLowerCase().includes(filter.toLowerCase())\n);\nif(!devs.length){ tbody.innerHTML='<tr><td colspan=\"11\" style=\"text-align:center;padding:32px;color:#888\">No devices found</td></tr>'; \nreturn; }\ntbody.innerHTML = devs.map(d=>{\nconst gc = getGroupColor(d.group);\nconst vars =\nObject.entries(d).filter(([k])=>!['name','ansible_host','group'].includes(k)).map(([k,v])=>`${k}=${v}`).join(' ');\nconst status = pingStatus[d.name];\nconst dotClass = status===undefined?'dot-pending':status?'dot-online':'dot-offline';\nconst statusText = status===undefined?'Checking...':status?'Online':'Offline';\nconst nrPort = d.nodered_port || 1880;\nreturn `<tr>\n  <td><span class=\"status-dot ${dotClass}\" id=\"dot-${d.name}\"></span><span id=\"st-${d.name}\">${statusText}</span></td>\n  <td style=\"font-weight:500\">${d.name}</td>\n  <td style=\"font-family:monospace;font-size:12px\">${d.ansible_host||''}</td>\n  <td><span class=\"badge\" style=\"background:${gc.bg};color:${gc.color}\">${d.group}</span></td>\n  <td style=\"font-size:12px\" id=\"fact-hostname-${d.name}\">—</td>\n  <td style=\"font-family:monospace;font-size:11px\" id=\"fact-mac-${d.name}\">—</td>\n  <td style=\"font-size:12px\" id=\"fact-os-${d.name}\">—</td>\n  <td style=\"text-align:right;white-space:nowrap;overflow:visible\">\n    <button class=\"btn btn-sm\" style=\"margin-right:4px\" onclick=\"openEdit('${d.name}')\">Edit</button>\n    <button class=\"btn btn-sm btn-nodered\" style=\"margin-right:4px\" onclick=\"window.open('http://${d.ansible_host}:${nrPort}','_blank')\" title=\"Open Node-RED on ${d.name}\">Node-RED</button>\n    <button class=\"btn btn-sm\" style=\"margin-right:4px\" onclick=\"openSendCommandModal('${d.name}')\" title=\"Send shell command to ${d.name}\">Send command</button>\n    <button class=\"btn btn-sm btn-warning\" style=\"margin-right:4px\" onclick=\"rebootDevice('${d.name}')\" title=\"Reboot ${d.name}\">Reboot</button>\n    <button class=\"btn btn-sm btn-danger\" onclick=\"removeDevice('${d.name}')\">Del</button>\n  </td>\n</tr>`;\n}).join('');\n}\n\nfunction openEdit(name){\n  const d=getAllDevices().find(x=>x.name===name);\n  if(!d) return;\n  const vars=Object.entries(d).filter(([k])=>!['name','ansible_host','group'].includes(k)).map(([k,v])=>`${k}=${v}`).join(' ');\n  document.body.insertAdjacentHTML('beforeend',`<div class=\"modal-wrap\" id=\"edit-overlay\" onclick=\"if(event.target===this)closeEdit()\">\n    <div class=\"modal\">\n      <div class=\"modal-title\">Edit device</div>\n      <div class=\"form-group\"><label>Device name</label><input value=\"${d.name}\" readonly /></div>\n      <div class=\"form-group\"><label>IP address</label><input id=\"e-ip\" value=\"${d.ansible_host||''}\" /></div>\n      <div class=\"form-group\"><label>Group</label><select id=\"e-group\">${getGroups().map(g=>`<option value=\"${g}\"${g===d.group?' selected':''}>${g}</option>`).join('')}</select></div>\n      <div class=\"form-group\"><label>Extra variables</label><input id=\"e-vars\" value=\"${vars}\" placeholder=\"key=val key=val\" /></div>\n      <div class=\"form-group\"><label>Set hostname</label><input id=\"e-hostname\" placeholder=\"Leave blank to keep current: ${d.hostname||'unknown'}\" /><span class=\"meta\">Runs set_hostname.yml on save if filled in</span></div>\n      <div class=\"modal-actions\">\n        <button class=\"btn\" onclick=\"closeEdit()\">Cancel</button>\n        <button class=\"btn btn-primary\" onclick=\"saveEdit('${d.name}')\">Save changes</button>\n      </div>\n    </div>\n  </div>`);\n}\n\n\nfunction closeEdit(){ const o=document.getElementById('edit-overlay'); if(o) o.remove(); }\n\n\nfunction saveEdit(name){\n  const ip=document.getElementById('e-ip').value.trim();\n  const group=document.getElementById('e-group').value;\n  const varsStr=document.getElementById('e-vars').value.trim();\n  const newHostname=document.getElementById('e-hostname').value.trim();\n  const extra={};\n  varsStr.split(/\\s+/).filter(Boolean).forEach(p=>{ const[k,v]=p.split('='); if(k&&v) extra[k]=v; });\n  apiCall('/fleet/device','PUT',{name,ansible_host:ip,group,...extra},'Device updated',()=>{\n    if(newHostname){\n      showToast('Setting hostname to ' + newHostname + '...');\n      fetch('/fleet/run',{\n        method:'POST',\n        headers:{'Content-Type':'application/json'},\n        body:JSON.stringify({playbook:'playbooks/set_hostname.yml',limit:name,extra_vars:'new_hostname=' + newHostname})\n      }).then(function(r){ return r.json(); }).then(function(r){\n        showToast(r.ok ? 'Hostname set to ' + newHostname : 'Hostname change failed: ' + (r.error||'unknown error'), !r.ok);\n        closeEdit(); location.reload();\n      }).catch(function(){ showToast('Hostname change failed',true); closeEdit(); location.reload(); });\n    } else {\n      closeEdit(); location.reload();\n    }\n  });\n}\n\n\nfunction openSendCommandModal(name){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"send-cmd-overlay\" onclick=\"if(event.target===this)closeSendCommandModal()\">'+\n      '<div class=\"modal\">'+\n        '<div class=\"modal-title\">Send command — <span style=\"font-weight:400;font-family:monospace\">' + name + '</span></div>'+\n        '<div class=\"form-group\">'+\n          '<label>Shell command</label>'+\n          '<input id=\"send-cmd-input\" placeholder=\"e.g. sudo shutdown now\" style=\"font-family:monospace\" />'+\n          '<span class=\"meta\">Runs via Ansible shell module on ' + name + ' only</span>'+\n        '</div>'+\n        '<div id=\"send-cmd-output\" style=\"display:none;margin-bottom:12px\">'+\n          '<div style=\"font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px\">Output</div>'+\n          '<div class=\"output-box\" id=\"send-cmd-result\" style=\"min-height:80px;max-height:200px;overflow-y:auto\"></div>'+\n        '</div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeSendCommandModal()\">Close</button>'+\n          '<button class=\"btn btn-primary\" id=\"send-cmd-btn\" onclick=\"submitSendCommand(\\'' + name + '\\')\" >Run</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n  setTimeout(function(){ const el=document.getElementById('send-cmd-input'); if(el) el.focus(); },100);\n}\n\n\nfunction closeSendCommandModal(){ const o=document.getElementById('send-cmd-overlay'); if(o) o.remove(); }\n\n\nfunction submitSendCommand(name){\n  const cmd = document.getElementById('send-cmd-input').value.trim();\n  if(!cmd){ showToast('Please enter a command',true); return; }\n  const btn = document.getElementById('send-cmd-btn');\n  const outputWrap = document.getElementById('send-cmd-output');\n  const outputEl = document.getElementById('send-cmd-result');\n  btn.disabled = true;\n  btn.textContent = 'Running...';\n  outputWrap.style.display = 'block';\n  outputEl.textContent = 'Running...';\n  fetch('/fleet/run',{\n    method:'POST',\n    headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({playbook:'__shell__',limit:name,extra_vars:'',command:cmd})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    outputEl.textContent = r.output || r.error || 'No output';\n    btn.disabled = false;\n    btn.textContent = 'Run';\n  }).catch(function(err){\n    outputEl.textContent = 'Request failed: ' + err;\n    btn.disabled = false;\n    btn.textContent = 'Run';\n  });\n}\n\n\nfunction removeDevice(name){\n  if(!confirm(`Remove ${name} from inventory?`)) return;\n  apiCall('/fleet/device','DELETE',{name},'Device removed');\n}\n\nfunction rebootDevice(name){\n  if(!confirm('Reboot ' + name + '? It will be offline for ~30 seconds.')) return;\n  showToast('Rebooting ' + name + '...');\n  fetch('/fleet/run',{\n    method:'POST',\n    headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({playbook:'playbooks/reboot.yml',limit:name,extra_vars:''})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    showToast(r.ok ? name + ' rebooted successfully' : 'Reboot failed: ' + (r.error||'unknown error'), !r.ok);\n  }).catch(function(){ showToast('Reboot request failed',true); });\n}\n\n\nfunction openAddModal(){\n  document.body.insertAdjacentHTML('beforeend',`<div class=\"modal-wrap\" id=\"add-overlay\" onclick=\"if(event.target===this)closeAddModal()\">\n    <div class=\"modal\">\n      <div class=\"modal-title\">Add device</div>\n      <div class=\"form-group\"><label>Device name</label><input id=\"m-add-name\" placeholder=\"e.g. pi-05\" /></div>\n      <div class=\"form-group\"><label>IP address</label><input id=\"m-add-ip\" placeholder=\"e.g. 192.168.1.105\" /></div>\n      <div class=\"form-group\"><label>Group</label><select id=\"m-add-group\">${getGroups().map(g=>`<option value=\"${g}\">${g}</option>`).join('')}</select></div>\n      <div class=\"form-group\"><label>Extra variables</label><input id=\"m-add-vars\" placeholder=\"key=val key=val\" /><span class=\"meta\">Space-separated key=value pairs</span></div>\n      <div class=\"modal-actions\">\n        <button class=\"btn\" onclick=\"closeAddModal()\">Cancel</button>\n        <button class=\"btn btn-primary\" onclick=\"submitAddDevice()\">Add device</button>\n      </div>\n    </div>\n  </div>`);\n}\n\n\nfunction closeAddModal(){ const o=document.getElementById('add-overlay'); if(o) o.remove(); }\n\n\nfunction submitAddDevice(){\n  const name=document.getElementById('m-add-name').value.trim();\n  const ip=document.getElementById('m-add-ip').value.trim();\n  const group=document.getElementById('m-add-group').value;\n  const varsStr=document.getElementById('m-add-vars').value.trim();\n  if(!name||!ip){ showToast('Device name and IP are required',true); return; }\n  const extra={};\n  varsStr.split(/\\s+/).filter(Boolean).forEach(p=>{ const[k,v]=p.split('='); if(k&&v) extra[k]=v; });\n  apiCall('/fleet/device','POST',{name,ansible_host:ip,group,...extra},'Device added',()=>{ closeAddModal(); location.reload(); });\n}\n\n\nfunction fixProxy(name){\nconst controlIp = prompt('Enter control Pi IP address:', '192.168.1.50');\nif(!controlIp) return;\nshowToast('Fixing proxy config on ' + name + '...');\nfetch('/fleet/fix-proxy', {\nmethod: 'POST',\nheaders: {'Content-Type': 'application/json'},\nbody: JSON.stringify({ name: name, control_pi_ip: controlIp })\n}).then(function(r){ return r.json(); }).then(function(r){\nif(r.ok){ showToast('Proxy configured on ' + name); loadFacts(); }\nelse showToast(r.error || 'Failed', true);\n}).catch(function(){ showToast('Request failed', true); });\n}\n\nfunction updatePingDot(name,online){\n  pingStatus[name]=online;\n  const dot=document.getElementById('dot-'+name);\n  const txt=document.getElementById('st-'+name);\n  if(dot) dot.className='status-dot '+(online?'dot-online':'dot-offline');\n  if(txt) txt.textContent=online?'Online':'Offline';\n}\n\nfunction updatePingSummary(){\n  const devs=getAllDevices();\n  const total=devs.length;\n  const online=devs.filter(d=>pingStatus[d.name]===true).length;\n  const checked=devs.filter(d=>pingStatus[d.name]!==undefined).length;\n  const el=document.getElementById('ping-summary');\n  if(checked<total) el.textContent=`Checking... ${checked}/${total}`;\n  else el.textContent=`${online} online, ${total-online} offline`;\n}\n\nfunction pingAll(){\n  const devs=getAllDevices();\n  document.getElementById('ping-summary').textContent='Checking...';\n  devs.forEach(d=>{\n    fetch('/fleet/ping',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:d.name,ip:d.ansible_host})})\n      .then(r=>r.json()).then(r=>{ updatePingDot(d.name,r.online); updatePingSummary(); })\n      .catch(()=>{ updatePingDot(d.name,false); updatePingSummary(); });\n  });\n}\n\nfunction loadFacts(){\n  const btn=document.getElementById('facts-btn');\n  if(btn){ btn.disabled=true; btn.textContent='Fetching...'; }\n  fetch('/fleet/facts',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({})})\n    .then(r=>r.json()).then(r=>{\n      if(btn){ btn.disabled=false; btn.textContent='Refresh details'; }\n      if(!r.ok){ showToast(r.error||'Failed to fetch facts',true); return; }\n      Object.entries(r.facts).forEach(function(entry){\n      const host = entry[0];\n      const facts = entry[1];\n      const hn = document.getElementById('fact-hostname-' + host);\n      const mc = document.getElementById('fact-mac-' + host);\n      const os = document.getElementById('fact-os-' + host);\n      if(hn) hn.textContent = facts.hostname || '—';\n      if(mc) mc.textContent = facts.mac || '—';\n      if(os) os.textContent = facts.os || '—';\n      });\n    }).catch(()=>{\n      if(btn){ btn.disabled=false; btn.textContent='Refresh details'; }\n      showToast('Failed to fetch device details',true);\n    });\n}\n\nconst PLAYBOOK_INFO = {\n  'playbooks/install_npm.yml': {\n    title: 'Install NPM modules',\n    desc: 'Installs or updates all NPM modules listed in vars/packages.yml on every target device. Pulls packages from Verdaccio on the control Pi — devices do not need internet access.',\n    vars: ''\n  },\n  'playbooks/install_apt.yml': {\n    title: 'Install APT package',\n    desc: 'By default installs all packages pre-cached in apt-cacher-ng on the control Pi. Add package_name to install a specific package instead.',\n    vars: 'Optional: package_name=<n>   e.g. package_name=htop'\n  },\n  'playbooks/deploy_nodered_settings.yml': {\n    title: 'Deploy Node-RED settings',\n    desc: 'Pushes the shared settings.js file from files/nodered-settings.js to all target devices and restarts Node-RED. Use this after changing credential secrets, enabling modules, or updating global context.',\n    vars: ''\n  },\n  'playbooks/deploy_flows.yml': {\n    title: 'Deploy flows',\n    desc: 'Deploys Node-RED flow files to target devices. Group flows are read from flows/groups/<group>.flows.json and device-specific flows from flows/devices/<device>.flows.json. Node-RED is restarted after deployment.',\n    vars: ''\n  },\n  'playbooks/set_wifi.yml': {\n    title: 'Set Wi-Fi credentials',\n    desc: 'Reads all profiles from vars/wifi-profiles.json and configures them on target devices using nmcli. Only connections prefixed with ansible- are managed — manually added networks are left untouched. Supports WPA2 Personal and WPA2 Enterprise (PEAP/MSCHAPv2).',\n    vars: ''\n  },\n  'playbooks/configure_proxy_registry.yml': {\n    title: 'Point APT + NPM to control Pi',\n    desc: 'Writes /etc/apt/apt.conf.d/01proxy and sets the NPM registry on each target device to point at the control Pi. Run this when onboarding new devices or after a reset.',\n    vars: 'Required: control_pi_ip=<ip>   e.g. control_pi_ip=192.168.50.194'\n  },\n  'playbooks/reset_proxy_registry.yml': {\n    title: 'Reset APT + NPM to default',\n    desc: 'Removes the APT proxy config and deletes the NPM registry entry from target devices, reverting both to their defaults. After this, devices will reach the internet directly for packages.',\n    vars: ''\n  }\n};\n\n\nfunction updatePlaybookInfo(){\n  const val = document.getElementById('run-playbook').value;\n  const info = PLAYBOOK_INFO[val];\n  const panel = document.getElementById('playbook-info');\n  if(!info){ panel.style.display='none'; return; }\n  document.getElementById('playbook-info-title').textContent = info.title;\n  document.getElementById('playbook-info-desc').textContent = info.desc;\n  const varsEl = document.getElementById('playbook-info-vars');\n  if(info.vars){\n    varsEl.textContent = '! ' + info.vars;\n    varsEl.style.display = 'block';\n  } else {\n    varsEl.textContent = '';\n    varsEl.style.display = 'none';\n  }\n  panel.style.display = 'block';\n}\n\nfunction populateRunSelects(){\n  const groups=getGroups();\n  const devices=getAllDevices();\n  const runGrp=document.getElementById('run-group');\n  if(runGrp) runGrp.innerHTML=groups.map(g=>`<option value=\"${g}\">${g}</option>`).join('');\n  const runDev=document.getElementById('run-device');\n  if(runDev) runDev.innerHTML=devices.map(d=>`<option value=\"${d.name}\">${d.name}</option>`).join('');\n}\n\nfunction renderGroups(){\n  const tbody = document.getElementById('groups-tbody');\n  const groups = getGroups();\n  if(!groups.length){ tbody.innerHTML = '<tr><td colspan=\"5\" style=\"text-align:center;padding:32px;color:#888\">No groups yet</td></tr>'; return; }\n  let rows = '';\n  groups.forEach(function(g){\n    const devices = inventory[g] || [];\n    const count = devices.length;\n    const gc = getGroupColor(g);\n    const desc = groupDescriptions[g] || '';\n    const chips = devices.map(function(d){\n      return '<span draggable=\"true\" data-device=\"' + d.name + '\" data-from=\"' + g + '\" onmousedown=\"event.stopPropagation()\" ondragstart=\"onChipDragStart(event)\" style=\"display:inline-block;background:#f1f0f0;border-radius:4px;padding:2px 8px;font-size:11px;font-family:monospace;margin:2px 2px;cursor:grab\">' + d.name + '</span>';\n    }).join('');\n    const delBtn = count === 0\n      ? '<button class=\"btn btn-sm btn-danger\" onclick=\"removeGroup(\\'' + g + '\\')\">Del</button>'\n      : '<button class=\"btn btn-sm btn-danger\" disabled style=\"opacity:0.4;cursor:not-allowed\" title=\"Drag all devices out first\">Del</button>';\n    rows += '<tr data-group=\"' + g + '\" ondragover=\"onGroupDragOver(event)\" ondragleave=\"onGroupDragLeave(event)\" ondrop=\"onGroupDrop(event,\\'' + g + '\\')\" style=\"transition:background 0.15s\">' +\n      '<td><span class=\"badge\" style=\"background:' + gc.bg + ';color:' + gc.color + '\">' + g + '</span></td>' +\n      '<td style=\"color:#888;text-align:center\">' + count + '</td>' +\n      '<td style=\"padding:4px 8px;min-width:120px\">' + (chips || '<span style=\"color:#ccc;font-size:12px\">—</span>') + '</td>' +\n      '<td style=\"font-size:12px;color:#aaa\">' + (desc || '\\u2014') + '</td>' +\n      '<td style=\"text-align:right;white-space:nowrap;overflow:visible\">' + delBtn + '</td>' +\n      '</tr>';\n  });\n  tbody.innerHTML = rows;\n}\n\nfunction onChipDragStart(e){\n  e.dataTransfer.setData('device', e.target.dataset.device);\n  e.dataTransfer.setData('fromGroup', e.target.dataset.from);\n  e.dataTransfer.effectAllowed = 'move';\n  e.target.style.opacity = '0.4';\n  setTimeout(function(){ if(e.target) e.target.style.opacity = '1'; }, 600);\n}\n\nfunction onGroupDragOver(e){\n  e.preventDefault();\n  e.dataTransfer.dropEffect = 'move';\n  e.currentTarget.style.background = 'var(--color-background-info)';\n}\n\nfunction onGroupDragLeave(e){\n  e.currentTarget.style.background = '';\n}\n\nfunction safeToast(msg, isError){\n  if(typeof showToast === 'function'){ showToast(msg, isError); return; }\n  const el = document.getElementById('toast');\n  if(!el) return;\n  el.textContent = msg;\n  el.className = 'toast' + (isError ? ' error' : '');\n  el.style.display = 'block';\n  el.style.opacity = '1';\n  clearTimeout(el._t);\n  el._t = setTimeout(function(){ el.style.opacity='0'; setTimeout(function(){ el.style.display='none'; },300); }, 3000);\n}\n\nfunction onGroupDrop(e, toGroup){\n  e.preventDefault();\n  e.currentTarget.style.background = '';\n  const device = e.dataTransfer.getData('device');\n  const fromGroup = e.dataTransfer.getData('fromGroup');\n  if(!device || fromGroup === toGroup) return;\n  safeToast('Moving ' + device + ' to ' + toGroup + '...');\n  fetch('/fleet/move', {\n    method: 'POST',\n    headers: {'Content-Type': 'application/json'},\n    body: JSON.stringify({name: device, from: fromGroup, to: toGroup})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    if(r.ok){ safeToast(device + ' moved to ' + toGroup); location.reload(); }\n    else safeToast('Move failed: ' + (r.error||'unknown'), true);\n  }).catch(function(){ safeToast('Move failed', true); });\n}\nfunction showPage(p,tab){\n  document.querySelectorAll('.page').forEach(el=>el.classList.remove('active'));\n  document.querySelectorAll('.tab').forEach(el=>el.classList.remove('active'));\n  document.getElementById('page-'+p).classList.add('active');\n  if(tab) tab.classList.add('active');\n  if(p==='groups') renderGroups();\n  if(p==='playbooks') populateRunSelects();\n  if(p==='cache'){ loadAptCache(); loadNpmCache(); }\n  if(p==='wifi') loadWifi();\n  if(p==='flows') loadFlows();\n  if(p==='nrsettings') loadSettings();\n}\nfunction openAddGroupModal(){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"add-group-overlay\" onclick=\"if(event.target===this)closeAddGroupModal()\">' +\n      '<div class=\"modal\">' +\n        '<div class=\"modal-title\">Add group</div>' +\n        '<div class=\"form-group\"><label>Group name</label><input id=\"m-grp-name\" placeholder=\"e.g. displays\" /></div>' +\n        '<div class=\"form-group\"><label>Description (optional)</label><input id=\"m-grp-desc\" placeholder=\"What devices belong here\" /></div>' +\n        '<div class=\"modal-actions\">' +\n          '<button class=\"btn\" onclick=\"closeAddGroupModal()\">Cancel</button>' +\n          '<button class=\"btn btn-primary\" onclick=\"submitAddGroup()\">Add group</button>' +\n        '</div>' +\n      '</div>' +\n    '</div>'\n  );\n}\n\nfunction closeAddGroupModal(){ const o=document.getElementById('add-group-overlay'); if(o) o.remove(); }\n\nfunction submitAddGroup(){\n  const name=document.getElementById('m-grp-name').value.trim();\n  const desc=document.getElementById('m-grp-desc').value.trim();\n  if(!name){ showToast('Group name is required',true); return; }\n  if(!/^[a-z0-9_-]+$/i.test(name)){ showToast('Letters, numbers, _ and - only',true); return; }\n  apiCall('/fleet/group','POST',{name,desc},'Group added',()=>{ closeAddGroupModal(); location.reload(); });\n}\n\nfunction openImportModal(){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"import-overlay\" onclick=\"if(event.target===this)closeImportModal()\">'+\n      '<div class=\"modal\" style=\"width:480px\">'+\n        '<div class=\"modal-title\">Import devices from CSV</div>'+\n        '<p style=\"font-size:13px;color:#888;margin:0 0 12px\">Expected columns: <code>group, ip, hostname</code> (header row required). Hostname is used as the device name.</p>'+\n        '<div class=\"form-group\">'+\n          '<label>Select CSV or spreadsheet file</label>'+\n          '<input type=\"file\" id=\"import-file\" accept=\".csv,.tsv,.txt\" style=\"width:100%\" onchange=\"previewImport(this)\" />'+\n        '</div>'+\n        '<div id=\"import-preview\" style=\"margin-bottom:12px;display:none\">'+\n          '<div style=\"font-size:12px;color:#888;margin-bottom:6px\" id=\"import-preview-count\"></div>'+\n          '<div style=\"max-height:180px;overflow-y:auto;border:1px solid #e0e0e0;border-radius:6px\">'+\n            '<table style=\"width:100%;font-size:12px\">'+\n              '<thead><tr><th style=\"padding:6px 10px\">Group</th><th style=\"padding:6px 10px\">IP</th><th style=\"padding:6px 10px\">Hostname</th></tr></thead>'+\n              '<tbody id=\"import-preview-tbody\"></tbody>'+\n            '</table>'+\n          '</div>'+\n        '</div>'+\n        '<div id=\"import-progress\" style=\"display:none;font-size:12px;color:#888;margin-bottom:12px\" ></div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeImportModal()\">Cancel</button>'+\n          '<button class=\"btn btn-primary\" id=\"import-submit-btn\" onclick=\"submitImport()\" disabled>Import devices</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n}\n\nfunction closeImportModal(){ const o=document.getElementById('import-overlay'); if(o) o.remove(); }\n\nlet importRows = [];\n\nfunction previewImport(input){\n  const file = input.files[0];\n  if(!file) return;\n  const reader = new FileReader();\n  reader.onload = function(e){\n    const text = e.target.result;\n    const lines = text.trim().split(/\\r?\\n/);\n    if(lines.length < 2){ showToast('File must have a header row and at least one device',true); return; }\n    const header = lines[0].split(/[,\\t]/).map(h=>h.trim().toLowerCase());\n    const groupIdx = header.indexOf('group');\n    const ipIdx    = header.indexOf('ip');\n    const hostIdx  = header.indexOf('hostname');\n    if(groupIdx<0||ipIdx<0||hostIdx<0){ showToast('Missing required columns: group, ip, hostname',true); return; }\n    importRows = [];\n    const tbody = document.getElementById('import-preview-tbody');\n    tbody.innerHTML = '';\n    lines.slice(1).forEach(function(line){\n      if(!line.trim()) return;\n      const cols = line.split(/[,\\t]/).map(c=>c.trim());\n      const row = { group: cols[groupIdx]||'', ip: cols[ipIdx]||'', name: cols[hostIdx]||'' };\n      if(!row.name||!row.ip) return;\n      importRows.push(row);\n      tbody.insertAdjacentHTML('beforeend',\n        '<tr>'+\n          '<td style=\"padding:4px 10px\">'+row.group+'</td>'+\n          '<td style=\"padding:4px 10px;font-family:monospace\">'+row.ip+'</td>'+\n          '<td style=\"padding:4px 10px\">'+row.name+'</td>'+\n        '</tr>'\n      );\n    });\n    document.getElementById('import-preview-count').textContent = importRows.length + ' device' + (importRows.length!==1?'s':'') + ' found';\n    document.getElementById('import-preview').style.display = 'block';\n    document.getElementById('import-submit-btn').disabled = importRows.length === 0;\n  };\n  reader.readAsText(file);\n}\n\nfunction submitImport(){\n  if(!importRows.length) return;\n  const btn = document.getElementById('import-submit-btn');\n  const progress = document.getElementById('import-progress');\n  btn.disabled = true;\n  progress.style.display = 'block';\n  let done = 0; let failed = 0;\n  function next(i){\n    if(i >= importRows.length){\n      progress.textContent = 'Done. ' + (importRows.length - failed) + ' added' + (failed ? ', ' + failed + ' failed.' : '.');\n      setTimeout(function(){ closeImportModal(); location.reload(); }, 1200);\n      return;\n    }\n    const r = importRows[i];\n    progress.textContent = 'Adding ' + r.name + ' (' + (i+1) + ' of ' + importRows.length + ')...';\n    fetch('/fleet/device',{\n      method:'POST',\n      headers:{'Content-Type':'application/json'},\n      body:JSON.stringify({name:r.name, ansible_host:r.ip, group:r.group})\n    }).then(function(res){ return res.json(); }).then(function(res){\n      if(!res.ok) failed++;\n      next(i+1);\n    }).catch(function(){ failed++; next(i+1); });\n  }\n  next(0);\n}\n\nfunction addGroup(){\n  const name=document.getElementById('grp-name')?document.getElementById('grp-name').value.trim():'';\n  if(!name){ showToast('Group name is required',true); return; }\n  if(!/^[a-z0-9_-]+$/i.test(name)){ showToast('Letters, numbers, _ and - only',true); return; }\n  apiCall('/fleet/group','POST',{name},'Group added',()=>{ location.reload(); });\n}\n\nfunction removeGroup(name){\n  if(!confirm(`Remove group \"${name}\"?`)) return;\n  apiCall('/fleet/group','DELETE',{name},'Group removed');\n}\n\nfunction updateTargetFields(){\n  const v=document.getElementById('run-target-type').value;\n  document.getElementById('run-group-wrap').style.display=v==='group'?'block':'none';\n  document.getElementById('run-device-wrap').style.display=v==='device'?'block':'none';\n}\n\nfunction addExtraVarRow(checked){\n  const tbody = document.getElementById('extra-vars-tbody');\n  const idx = tbody.querySelectorAll('tr').length;\n  const row = document.createElement('tr');\n  row.innerHTML =\n    '<td style=\"text-align:center;padding:4px 4px\"><input type=\"checkbox\" checked /></td>'+\n    '<td style=\"padding:4px 6px\"><input placeholder=\"e.g. package_name\" style=\"width:100%;font-family:monospace;font-size:12px\" /></td>'+\n    '<td style=\"padding:4px 6px\"><input placeholder=\"e.g. htop\" style=\"width:100%;font-family:monospace;font-size:12px\" /></td>';\n  tbody.appendChild(row);\n}\n\nfunction getExtraVars(){\n  const rows = document.getElementById('extra-vars-tbody').querySelectorAll('tr');\n  const parts = [];\n  rows.forEach(function(row){\n    const checked = row.querySelector('input[type=checkbox]').checked;\n    const inputs = row.querySelectorAll('input:not([type=checkbox])');\n    const k = inputs[0].value.trim();\n    const v = inputs[1].value.trim();\n    if(checked && k && v) parts.push(k + '=' + v);\n  });\n  return parts.join(' ');\n}\n\nfunction runPlaybook(){\n  const playbook=document.getElementById('run-playbook').value;\n  const targetType=document.getElementById('run-target-type').value;\n  const extra=getExtraVars();\n  let limit='';\n  if(targetType==='group') limit=document.getElementById('run-group').value;\n  if(targetType==='device') limit=document.getElementById('run-device').value;\n  document.getElementById('run-output').textContent='Running...';\n  document.getElementById('run-status').textContent='Running...';\n  fetch('/fleet/run',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({playbook,limit,extra_vars:extra})})\n    .then(r=>r.json()).then(r=>{ document.getElementById('run-output').textContent=r.output||r.error||'No output'; document.getElementById('run-status').textContent=''; })\n    .catch(()=>{ document.getElementById('run-output').textContent='Request failed'; document.getElementById('run-status').textContent=''; });\n}\n\nfunction fmtSize(bytes){\n  if(bytes<1024) return bytes+'B';\n  if(bytes<1048576) return (bytes/1024).toFixed(1)+'KB';\n  return (bytes/1048576).toFixed(1)+'MB';\n}\n\nfunction renderAptList(filter=''){\n  const el=document.getElementById('apt-list');\n  let pkgs=aptPackages;\n  if(filter) pkgs=pkgs.filter(p=>p.name.toLowerCase().includes(filter.toLowerCase()));\n  if(!pkgs.length){ el.innerHTML=`<div class=\"cache-empty\">${aptPackages.length?'No matching packages':'APT cache is empty'}</div>`; return; }\n  el.innerHTML=`<table><thead><tr><th>Package</th><th style=\"width:80px\">Version</th><th style=\"width:70px\">Size</th><th style=\"width:60px\"></th></tr></thead><tbody>`+\n    pkgs.map(p=>`<tr><td style=\"font-family:monospace;font-size:12px\">${p.name}</td><td style=\"font-size:12px;color:#888\">${p.version||'—'}</td><td class=\"pkg-size\">${fmtSize(p.size)}</td><td><button class=\"btn btn-sm btn-danger\" onclick=\"deleteApt('${p.file}','${p.name}')\">Del</button></td></tr>`).join('')+\n    '</tbody></table>';\n}\n\nfunction renderNpmList(filter=''){\n  const el=document.getElementById('npm-list');\n  let pkgs=npmPackages;\n  if(filter) pkgs=pkgs.filter(p=>p.name.toLowerCase().includes(filter.toLowerCase()));\n  if(!pkgs.length){ el.innerHTML=`<div class=\"cache-empty\">${npmPackages.length?'No matching packages':'NPM cache is empty'}</div>`; return; }\n  el.innerHTML=`<table><thead><tr><th>Package</th><th style=\"width:100px\">Version</th><th style=\"width:60px\"></th></tr></thead><tbody>`+\n    pkgs.map(p=>`<tr><td style=\"font-family:monospace;font-size:12px\">${p.name}</td><td style=\"font-size:12px;color:#888\">${p.version||'—'}</td><td><button class=\"btn btn-sm btn-danger\" onclick=\"deleteNpm('${p.name}')\">Del</button></td></tr>`).join('')+\n    '</tbody></table>';\n}\n\nfunction filterApt(v){ renderAptList(v); }\nfunction filterNpm(v){ renderNpmList(v); }\n\nfunction loadAptCache(){\n  document.getElementById('apt-list').innerHTML='<div class=\"cache-empty\"><span class=\"spinner\"></span>Loading...</div>';\n  fetch('/fleet/cache/apt').then(r=>r.json()).then(r=>{ aptPackages=r.packages||[]; renderAptList(); })\n    .catch(()=>{ document.getElementById('apt-list').innerHTML='<div class=\"cache-empty\">Failed to load</div>'; });\n}\n\nfunction loadNpmCache(){\n  document.getElementById('npm-list').innerHTML='<div class=\"cache-empty\"><span class=\"spinner\"></span>Loading...</div>';\n  fetch('/fleet/cache/npm').then(r=>r.json()).then(r=>{ npmPackages=r.packages||[]; renderNpmList(); })\n    .catch(()=>{ document.getElementById('npm-list').innerHTML='<div class=\"cache-empty\">Failed to load</div>'; });\n}\n\nfunction addApt(){\n  const name=document.getElementById('apt-add-name').value.trim();\n  if(!name){ showToast('Package name required',true); return; }\n  const btn=document.getElementById('apt-add-btn');\n  btn.disabled=true; btn.textContent='Adding...';\n  fetch('/fleet/cache/apt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})})\n    .then(r=>r.json()).then(r=>{\n      btn.disabled=false; btn.textContent='Add';\n      if(r.ok){ showToast(`${name} cached`); document.getElementById('apt-add-name').value=''; loadAptCache(); }\n      else showToast(r.error||'Failed',true);\n    }).catch(()=>{ btn.disabled=false; btn.textContent='Add'; showToast('Request failed',true); });\n}\n\nfunction deleteApt(file, name){\n  if(!confirm(`Remove this package from APT cache?`)) return;\n  fetch('/fleet/cache/apt',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({file, name})})\n    .then(r=>r.json()).then(r=>{ if(r.ok){ showToast('Package removed'); loadAptCache(); } else showToast(r.error||'Failed',true); })\n    .catch(()=>showToast('Request failed',true));\n}\n\nfunction addNpm(){\n  const name=document.getElementById('npm-add-name').value.trim();\n  if(!name){ showToast('Package name required',true); return; }\n  const btn=document.getElementById('npm-add-btn');\n  btn.disabled=true; btn.textContent='Adding...';\n  fetch('/fleet/cache/npm',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})})\n    .then(r=>r.json()).then(r=>{\n      btn.disabled=false; btn.textContent='Add';\n      if(r.ok){ showToast(`${name} cached`); document.getElementById('npm-add-name').value=''; loadNpmCache(); }\n      else showToast(r.error||'Failed',true);\n    }).catch(()=>{ btn.disabled=false; btn.textContent='Add'; showToast('Request failed',true); });\n}\n\nfunction deleteNpm(name){\n  if(!confirm(`Remove ${name} from NPM cache?`)) return;\n  fetch('/fleet/cache/npm',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({name})})\n    .then(r=>r.json()).then(r=>{ if(r.ok){ showToast('Package removed'); loadNpmCache(); } else showToast(r.error||'Failed',true); })\n    .catch(()=>showToast('Request failed',true));\n}\n\nlet wifiProfiles = [];\n\nfunction loadWifi(){\nconst tbody = document.getElementById('wifi-tbody');\nif(tbody) tbody.innerHTML = '<tr><td colspan=\"5\" style=\"text-align:center;padding:32px;color:#888\"><span class=\"spinner\"></span> Loading...</td></tr>';\nfetch('/fleet/wifi').then(function(r){ return r.json(); }).then(function(r){\nwifiProfiles = r.wifi_profiles || [];\nrenderWifiList();\n}).catch(function(){\nif(tbody) tbody.innerHTML = '<tr><td colspan=\"5\" style=\"text-align:center;padding:32px;color:#888\">Failed to load</td></tr>';\n});\n}\n\nfunction renderWifiList(){\nconst tbody = document.getElementById('wifi-tbody');\nif(!wifiProfiles.length){\ntbody.innerHTML = '<tr><td colspan=\"5\" style=\"text-align:center;padding:32px;color:#888\">No networks saved yet</td></tr>';\nreturn;\n}\nlet rows = '';\nwifiProfiles.forEach(function(p){\nconst secLabel = p.security === 'wpa2-enterprise' ? 'WPA2 Enterprise' : 'WPA2 Personal';\nconst secColor = p.security === 'wpa2-enterprise' ? 'background:#E6F1FB;color:#0C447C' :\n'background:#E1F5EE;color:#085041';\nrows += '<tr>' +\n  '<td style=\"font-weight:500\">' + p.ssid + '</td>' +\n  '<td><span class=\"badge\" style=\"' + secColor + '\">' + secLabel + '</span></td>' +\n  '<td style=\"color:#888\">' + p.priority + '</td>' +\n  '<td style=\"color:#888\">' + (p.hidden ? 'Yes' : 'No') + '</td>' +\n  '<td style=\"text-align:right;white-space:nowrap;overflow:visible\">' +\n    '<button class=\"btn btn-sm\" style=\"margin-right:4px\" onclick=\"openWifiEdit(\\'' + p.ssid + '\\')\">Edit</button>' +\n    '<button class=\"btn btn-sm btn-danger\" onclick=\"deleteWifi(\\'' + p.ssid + '\\')\">Del</button>' +\n    '</td>' +\n  '</tr>';\n});\ntbody.innerHTML = rows;\n}\n\nfunction openAddWifiModal(){\ndocument.body.insertAdjacentHTML('beforeend',\n'<div class=\"modal-wrap\" id=\"add-wifi-overlay\" onclick=\"if(event.target===this)closeAddWifiModal()\">' +\n  '<div class=\"modal\" style=\"width:500px\">' +\n    '<div class=\"modal-title\">Add network</div>' +\n    '<div class=\"form-group\"><label>SSID</label><input id=\"w-ssid\" placeholder=\"Network name\" /></div>' +\n    '<div class=\"form-group\"><label>Security type</label>' +\n      '<select id=\"w-security\" onchange=\"toggleWifiSecurityFields(\\'w\\')\">' +\n            '<option value=\"wpa2-personal\">WPA2 Personal</option>' +\n            '<option value=\"wpa2-enterprise\">WPA2 Enterprise (PEAP/MSCHAPv2)</option>' +\n          '</select>' +\n      '</div>' +\n    '<div id=\"w-personal-fields\">' +\n      '<div class=\"form-group\"><label>Passkey</label><input id=\"w-passkey\" type=\"password\" placeholder=\"Password\" /></div>' +\n      '</div>' +\n    '<div id=\"w-enterprise-fields\" style=\"display:none\">' +\n      '<div class=\"form-group\"><label>Identity (username)</label><input id=\"w-identity\" placeholder=\"user@domain.com\" /></div>' +\n      '<div class=\"form-group\"><label>Password</label><input id=\"w-password\" type=\"password\" placeholder=\"Password\" /></div>' +\n      '<div class=\"form-group\"><label>CA Certificate filename</label><input id=\"w-ca-cert\" placeholder=\"corp-ca.pem\" /><span class=\"meta\">File must exist in files/certs/ on the control Pi</span></div>' +\n    '<div class=\"form-group\"><label>Domain suffix match</label><input id=\"w-domain-suffix\" placeholder=\"corp.example.com\" /></div>' +\n      '<div class=\"form-group\"><label>Anonymous identity (optional)</label><input id=\"w-anon-identity\" placeholder=\"anonymous\" /></div>' +\n      '</div>' +\n    '<div class=\"form-group\"><label>Priority</label><input id=\"w-priority\" type=\"number\" value=\"50\" /><span class=\"meta\">Higher number = preferred when multiple networks in range</span></div>' +\n    '<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:16px\">' +\n      '<input type=\"checkbox\" id=\"w-hidden\" style=\"width:auto\" />' +\n          '<label style=\"font-size:13px;color:#1a1a1a;cursor:pointer\">Hidden SSID</label>' +\n      '</div>' +\n    '<div class=\"modal-actions\">' +\n      '<button class=\"btn\" onclick=\"closeAddWifiModal()\">Cancel</button>' +\n      '<button class=\"btn btn-primary\" onclick=\"submitAddWifi()\">Add network</button>' +\n      '</div>' +\n    '</div>' +\n  '</div>'\n);\n}\n\nfunction toggleWifiSecurityFields(prefix){\nconst sec = document.getElementById(prefix + '-security').value;\nconst personal = document.getElementById(prefix + '-personal-fields');\nconst enterprise = document.getElementById(prefix + '-enterprise-fields');\nif(personal) personal.style.display = sec === 'wpa2-personal' ? 'block' : 'none';\nif(enterprise) enterprise.style.display = sec === 'wpa2-enterprise' ? 'block' : 'none';\n}\n\nfunction closeAddWifiModal(){ const o=document.getElementById('add-wifi-overlay'); if(o) o.remove(); }\n\nfunction submitAddWifi(){\nconst ssid = document.getElementById('w-ssid').value.trim();\nconst security = document.getElementById('w-security').value;\nconst priority = document.getElementById('w-priority').value;\nconst hidden = document.getElementById('w-hidden').checked;\n\nif(!ssid){ showToast('SSID is required', true); return; }\n\nlet profile = { ssid, security, hidden, priority };\n\nif(security === 'wpa2-personal'){\nconst passkey = document.getElementById('w-passkey').value.trim();\nif(!passkey){ showToast('Passkey is required', true); return; }\nprofile.passkey = passkey;\n} else if(security === 'wpa2-enterprise'){\nconst identity = document.getElementById('w-identity').value.trim();\nconst password = document.getElementById('w-password').value.trim();\nconst caCert = document.getElementById('w-ca-cert').value.trim();\nif(!identity){ showToast('Identity is required', true); return; }\nif(!password){ showToast('Password is required', true); return; }\nif(!caCert){ showToast('CA certificate filename is required', true); return; }\nprofile.identity = identity;\nprofile.password = password;\nprofile.ca_cert = caCert;\nprofile.domain_suffix = document.getElementById('w-domain-suffix').value.trim();\nprofile.anonymous_identity = document.getElementById('w-anon-identity').value.trim();\n}\n\napiCall('/fleet/wifi', 'POST', profile, 'Network added', function(){\ncloseAddWifiModal();\nloadWifi();\n});\n}\nfunction closeAddWifiModal(){ const o=document.getElementById('add-wifi-overlay'); if(o) o.remove(); }\n\n// function submitAddWifi(){\n// const ssid = document.getElementById('w-ssid').value.trim();\n// const passkey = document.getElementById('w-passkey').value.trim();\n// const priority = document.getElementById('w-priority').value;\n// const hidden = document.getElementById('w-hidden').checked;\n// if(!ssid||!passkey){ showToast('SSID and passkey are required',true); return; }\n// apiCall('/fleet/wifi','POST',{ssid,passkey,hidden,priority},'Network added',function(){\n// closeAddWifiModal();\n// loadWifi();\n// });\n// }\n\nfunction openWifiEdit(ssid){\nconst p = wifiProfiles.find(function(x){ return x.ssid === ssid; });\nif(!p) return;\nconst isEnterprise = p.security === 'wpa2-enterprise';\ndocument.body.insertAdjacentHTML('beforeend',\n'<div class=\"modal-wrap\" id=\"wifi-edit-overlay\" onclick=\"if(event.target===this)closeWifiEdit()\">' +\n  '<div class=\"modal\" style=\"width:500px\">' +\n    '<div class=\"modal-title\">Edit network</div>' +\n    '<div class=\"form-group\"><label>SSID</label><input id=\"we-ssid\" value=\"' + p.ssid + '\" /></div>' +\n    '<div class=\"form-group\"><label>Security type</label>' +\n      '<select id=\"we-security\" onchange=\"toggleWifiSecurityFields(\\'we\\')\">' +\n            '<option value=\"wpa2-personal\"' + (!isEnterprise?' selected':'') + '>WPA2 Personal</option>' +\n            '<option value=\"wpa2-enterprise\"' + (isEnterprise?' selected':'') + '>WPA2 Enterprise (PEAP/MSCHAPv2)</option>' +\n          '</select>' +\n      '</div>' +\n    '<div id=\"we-personal-fields\" style=\"display:' + (!isEnterprise?'block':'none') + '\">' +\n      '<div class=\"form-group\"><label>Passkey</label><input id=\"we-passkey\" type=\"password\" value=\"' + (p.passkey||'') + '\" /></div>' +\n      '</div>' +\n    '<div id=\"we-enterprise-fields\" style=\"display:' + (isEnterprise?'block':'none') + '\">' +\n      '<div class=\"form-group\"><label>Identity (username)</label><input id=\"we-identity\" value=\"' + (p.identity||'') + '\" /></div>' +\n      '<div class=\"form-group\"><label>Password</label><input id=\"we-password\" type=\"password\" value=\"' + (p.password||'') + '\" /></div>' +\n      '<div class=\"form-group\"><label>CA Certificate filename</label><input id=\"we-ca-cert\" value=\"' + (p.ca_cert||'') + '\" /><span class=\"meta\">File must exist in files/certs/ on the control Pi</span></div>' +\n      '<div class=\"form-group\"><label>Domain suffix match</label><input id=\"we-domain-suffix\" value=\"' + (p.domain_suffix||'') + '\" /></div>' +\n      '<div class=\"form-group\"><label>Anonymous identity (optional)</label><input id=\"we-anon-identity\" value=\"' + (p.anonymous_identity||'') + '\" /></div>' +\n      '</div>' +\n    '<div class=\"form-group\"><label>Priority</label><input id=\"we-priority\" type=\"number\" value=\"' + p.priority + '\" /></div>' +\n    '<div style=\"display:flex;align-items:center;gap:8px;margin-bottom:16px\">' +\n      '<input type=\"checkbox\" id=\"we-hidden\" style=\"width:auto\" ' + (p.hidden?'checked':'') + ' />' +\n          '<label style=\"font-size:13px;color:#1a1a1a;cursor:pointer\">Hidden SSID</label>' +\n        '</div>' +\n        '<div class=\"modal-actions\">' +\n          '<button class=\"btn\" onclick=\"closeWifiEdit()\">Cancel</button>' +\n          '<button class=\"btn btn-primary\" onclick=\"saveWifiEdit(\\'' + p.ssid + '\\')\">Save changes</button>' +\n      '</div>' +\n    '</div>' +\n  '</div>'\n);\n}\n\nfunction saveWifiEdit(original_ssid){\nconst ssid = document.getElementById('we-ssid').value.trim();\nconst security = document.getElementById('we-security').value;\nconst priority = document.getElementById('we-priority').value;\nconst hidden = document.getElementById('we-hidden').checked;\nif(!ssid){ showToast('SSID is required', true); return; }\nlet profile = { original_ssid, ssid, security, hidden, priority };\nif(security === 'wpa2-personal'){\nconst passkey = document.getElementById('we-passkey').value.trim();\nif(!passkey){ showToast('Passkey is required', true); return; }\nprofile.passkey = passkey;\n} else {\nconst identity = document.getElementById('we-identity').value.trim();\nconst password = document.getElementById('we-password').value.trim();\nconst caCert = document.getElementById('we-ca-cert').value.trim();\nif(!identity||!password||!caCert){ showToast('Identity, password and CA cert are required', true); return; }\nprofile.identity = identity;\nprofile.password = password;\nprofile.ca_cert = caCert;\nprofile.domain_suffix = document.getElementById('we-domain-suffix').value.trim();\nprofile.anonymous_identity = document.getElementById('we-anon-identity').value.trim();\n}\napiCall('/fleet/wifi', 'PUT', profile, 'Network updated', function(){\ncloseWifiEdit();\nloadWifi();\n});\n}\n\nfunction addWifi(){\nconst ssid = document.getElementById('w-ssid').value.trim();\nconst passkey = document.getElementById('w-passkey').value.trim();\nconst priority = document.getElementById('w-priority').value;\nconst hidden = document.getElementById('w-hidden').checked;\nif(!ssid||!passkey){ showToast('SSID and passkey are required',true); return; }\napiCall('/fleet/wifi','POST',{ssid,passkey,hidden,priority},'Network added',()=>{\ndocument.getElementById('w-ssid').value='';\ndocument.getElementById('w-passkey').value='';\ndocument.getElementById('w-priority').value='50';\ndocument.getElementById('w-hidden').checked=false;\nloadWifi();\n});\n}\n\nfunction deleteWifi(ssid){\nif(!confirm(`Remove \"${ssid}\" from saved networks?`)) return;\napiCall('/fleet/wifi','DELETE',{ssid},'Network removed',()=>loadWifi());\n}\n\nfunction showToast(msg,isError){\nconsole.log('[toast] ' + (isError ? '[ERROR] ' : '') + msg);\nconst t=document.getElementById('toast');\nt.textContent=msg;\nt.className='toast'+(isError?' error':'');\nt.style.display='block';\nsetTimeout(()=>t.style.display='none',3500);\n}\nfunction apiCall(url,method,body,successMsg,callback){\nfetch(url,{method,headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})\n.then(r=>r.json()).then(r=>{\nif(r.ok){ showToast(successMsg); if(callback) callback(); else location.reload(); }\nelse showToast(r.error||'Operation failed',true);\n}).catch(()=>showToast('Request failed',true));\n}\n// function openWifiEdit(ssid){\n// const p = wifiProfiles.find(x=>x.ssid===ssid);\n// if(!p) return;\n// document.body.insertAdjacentHTML('beforeend',`<div class=\"modal-wrap\" id=\"wifi-edit-overlay\"\n//   onclick=\"if(event.target===this)closeWifiEdit()\">\n//   <div class=\"modal\">\n//     <div class=\"modal-title\">Edit network</div>\n//     <div class=\"form-group\"><label>SSID</label><input id=\"we-ssid\" value=\"${p.ssid}\" /></div>\n//     <div class=\"form-group\"><label>Passkey</label><input id=\"we-passkey\" type=\"password\" value=\"${p.passkey}\" /></div>\n//     <div class=\"form-group\"><label>Priority</label><input id=\"we-priority\" type=\"number\" value=\"${p.priority}\" /></div>\n//     <div style=\"display:flex;align-items:center;gap:8px;margin-bottom:16px\">\n//       <input type=\"checkbox\" id=\"we-hidden\" style=\"width:auto\" ${p.hidden?'checked':''} />\n//       <label style=\"font-size:13px;color:#1a1a1a;cursor:pointer\">Hidden SSID</label>\n//     </div>\n//     <div class=\"modal-actions\">\n//       <button class=\"btn\" onclick=\"closeWifiEdit()\">Cancel</button>\n//       <button class=\"btn btn-primary\" onclick=\"saveWifiEdit('${p.ssid}')\">Save changes</button>\n//     </div>\n//   </div>\n// </div>`);\n// }\n\nfunction closeWifiEdit(){ const o=document.getElementById('wifi-edit-overlay'); if(o) o.remove(); }\n\n// function saveWifiEdit(original_ssid){\n// const ssid = document.getElementById('we-ssid').value.trim();\n// const passkey = document.getElementById('we-passkey').value.trim();\n// const priority = document.getElementById('we-priority').value;\n// const hidden = document.getElementById('we-hidden').checked;\n// if(!ssid||!passkey){ showToast('SSID and passkey are required',true); return; }\n// apiCall('/fleet/wifi','PUT',{original_ssid,ssid,passkey,hidden,priority},'Network updated',()=>{ closeWifiEdit();\n// loadWifi(); });\n// }\n\nlet selectedFlowFile = null;\nlet flowsData = [];\nlet flowRendererInstance = null;\n\nfunction loadFlows(){\n  const list = document.getElementById('flows-list');\n  list.innerHTML = '<div style=\"padding:16px;color:#bbb;font-size:13px\">Loading...</div>';\n  fetch('/fleet/flows')\n    .then(function(r){ return r.json(); })\n    .then(function(r){\n      if(!r.ok || !r.files.length){\n        list.innerHTML = '<div style=\"padding:16px;color:#bbb;font-size:13px\">No flow files found in flows/ directory.</div>';\n        return;\n      }\n      flowsData = r.files;\n      let html = '';\n      const groups = {};\n      r.files.forEach(function(f){\n        if(!groups[f.dir]) groups[f.dir] = [];\n        groups[f.dir].push(f);\n      });\n      Object.keys(groups).sort().forEach(function(dir){\n        html += '<div style=\"padding:6px 14px 2px;font-size:10px;font-weight:600;color:#bbb;text-transform:uppercase;letter-spacing:.08em\">' + dir + '</div>';\n        groups[dir].forEach(function(f){\n          html += '<div class=\"flow-file-item\" data-path=\"' + f.path + '\" onclick=\"selectFlow(this,\\'' + f.path + '\\')\" style=\"padding:8px 14px 6px;font-size:13px;cursor:pointer;border-bottom:0.5px solid #f0f0f0;transition:background .1s\">' +\n            '<div style=\"font-weight:500;margin-bottom:2px\">' + f.name + '</div>' +\n            '<div style=\"font-size:11px;color:#aaa;margin-bottom:6px\">' + f.target + '</div>' +\n            '<div style=\"display:flex;gap:4px\" onclick=\"event.stopPropagation()\">' +\n              '<button class=\"btn btn-sm\" style=\"font-size:10px;padding:1px 7px\" onclick=\"openRenameFlowModal(\\'' + f.path + '\\',\\'' + f.name + '\\',\\'' + f.dir + '\\')\">Rename</button>' +\n              '<button class=\"btn btn-sm\" style=\"font-size:10px;padding:1px 7px\" onclick=\"openEditFlowModal(\\'' + f.path + '\\',\\'' + f.name + '\\')\">Edit JSON</button>' +\n              '<button class=\"btn btn-sm btn-danger\" style=\"font-size:10px;padding:1px 7px\" onclick=\"deleteFlow(\\'' + f.path + '\\',\\'' + f.name + '\\')\">Del</button>' +\n            '</div>' +\n          '</div>';\n        });\n      });\n      list.innerHTML = html;\n    })\n    .catch(function(){ list.innerHTML = '<div style=\"padding:16px;color:#e53e3e;font-size:13px\">Failed to load flows.</div>'; });\n}\n\nfunction selectFlow(el, path){\n  document.querySelectorAll('.flow-file-item').forEach(function(i){ i.style.background=''; });\n  el.style.background = '#f0f7ff';\n  selectedFlowFile = path;\n  document.getElementById('flows-deploy-btn').disabled = false;\n  const f = flowsData.find(function(x){ return x.path === path; });\n  if(!f) return;\n  document.getElementById('flows-preview-title').textContent = f.name;\n  document.getElementById('flows-preview-meta').textContent = '';\n  document.getElementById('flows-preview-empty').style.display = 'none';\n  const container = document.getElementById('flows-renderer-container');\n  container.style.display = 'block';\n  container.innerHTML = '<div style=\"padding:16px;color:#bbb;font-size:13px\">Loading...</div>';\n  fetch('/fleet/flows?path=' + encodeURIComponent(path))\n    .then(function(r){ return r.json(); })\n    .then(function(r){\n      if(!r.ok){\n        container.innerHTML = '<div style=\"padding:16px;color:#e53e3e;font-size:13px\">' + (r.error||'Failed to load flow') + '</div>';\n        return;\n      }\n      const nodes = r.nodes || [];\n      const count = nodes.filter(function(n){ return n.type !== 'tab'; }).length;\n      document.getElementById('flows-preview-meta').textContent = f.target + ' — ' + count + ' node' + (count!==1?'s':'');\n      container.innerHTML = '';\n      if(window.FlowRenderer){\n        try{\n          const renderer = new window.FlowRenderer();\n          renderer.renderFlows(nodes, { container: container, gridLines: true, linkLines: true });\n        } catch(e){\n          container.innerHTML = '<div style=\"padding:16px;color:#e53e3e;font-size:13px\">Render error: ' + e.message + '</div>';\n        }\n      } else {\n        container.innerHTML = '<div style=\"padding:16px;color:#e53e3e;font-size:13px\">FlowRenderer not loaded. Ensure index.min.js is placed at /home/pi/fleet-management/public/flow-renderer/index.min.js and httpStatic is configured in settings.js.</div>';\n      }\n    })\n    .catch(function(){\n      container.innerHTML = '<div style=\"padding:16px;color:#e53e3e;font-size:13px\">Failed to load flow file.</div>';\n    });\n}\n\nfunction deploySelectedFlow(){\n  if(!selectedFlowFile) return;\n  const f = flowsData.find(function(x){ return x.path === selectedFlowFile; });\n  if(!f) return;\n  const groups = getGroups();\n  const devices = getAllDevices();\n  const groupOpts = groups.map(function(g){\n    return '<option value=\"group::' + g + '\">Group: ' + g + '</option>';\n  }).join('');\n  const deviceOpts = devices.map(function(d){\n    return '<option value=\"device::' + d.name + '\">Device: ' + d.name + ' (' + d.group + ')</option>';\n  }).join('');\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"flow-deploy-overlay\" onclick=\"if(event.target===this)closeDeployFlowModal()\">'+\n      '<div class=\"modal\">'+\n        '<div class=\"modal-title\">Deploy flow</div>'+\n        '<div class=\"form-group\" style=\"margin-bottom:6px\">'+\n          '<label>Flow file</label>'+\n          '<div style=\"font-size:13px;font-family:monospace;padding:4px 0;color:#444\">' + f.name + '</div>'+\n        '</div>'+\n        '<div class=\"form-group\">'+\n          '<label>Deploy target</label>'+\n          '<select id=\"fd-target\">'+\n            '<option value=\"fleet::\">All devices (fleet)</option>'+\n            '<optgroup label=\"Groups\">' + groupOpts + '</optgroup>'+\n            '<optgroup label=\"Devices\">' + deviceOpts + '</optgroup>'+\n          '</select>'+\n          '<span class=\"meta\">Group targets all devices in that group. Device targets only that device.</span>'+\n        '</div>'+\n        '<div id=\"fd-status\" style=\"font-size:12px;color:#888;min-height:18px;margin-bottom:4px\"></div>'+\n        '<div id=\"fd-output\" style=\"display:none;margin-bottom:12px\">'+\n          '<div style=\"font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px\">Output</div>'+\n          '<div class=\"output-box\" id=\"fd-output-box\" style=\"min-height:80px;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all\"></div>'+\n        '</div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeDeployFlowModal()\">Cancel</button>'+\n          '<button class=\"btn btn-primary\" id=\"fd-confirm-btn\" onclick=\"submitDeployFlow(\\'' + f.path + '\\',\\'' + f.name + '\\')\" >Deploy</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n}\n\nfunction closeDeployFlowModal(){ const o=document.getElementById('flow-deploy-overlay'); if(o) o.remove(); }\n\nfunction submitDeployFlow(filePath, label){\n  const val = document.getElementById('fd-target').value;\n  const parts = val.split('::');\n  const type = parts[0];\n  const target = parts[1];\n  const btn = document.getElementById('fd-confirm-btn');\n  const status = document.getElementById('fd-status');\n  btn.disabled = true;\n  btn.textContent = 'Deploying...';\n  status.textContent = 'Running...';\n  status.style.color = '#888';\n  const limit = type === 'device' ? target : (type === 'group' ? target : '');\n  fetch('/fleet/run',{\n    method:'POST',\n    headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({\n      playbook:'playbooks/deploy_flows.yml',\n      limit: limit,\n      extra_vars: 'flow_file=' + filePath\n    })\n  }).then(function(r){ return r.json(); }).then(function(r){\n    var ow=document.getElementById('fd-output'),ob=document.getElementById('fd-output-box');\n    if(ow) ow.style.display='block'; if(ob) ob.textContent=r.output||r.error||'No output';\n    if(r.ok){\n      status.textContent='Deployed successfully.'; status.style.color='#085041';\n      showToast(label + ' deployed');\n      btn.textContent='Close'; btn.disabled=false; btn.onclick=function(){ closeDeployFlowModal(); };\n    } else {\n      status.textContent='Deploy failed: '+(r.error||'unknown'); status.style.color='#e53e3e';\n      btn.disabled=false; btn.textContent='Deploy';\n    }\n  }).catch(function(){\n    status.textContent='Request failed'; status.style.color='#e53e3e';\n    btn.disabled=false; btn.textContent='Deploy';\n  });\n}\n\n// ── CREATE ────────────────────────────────────────────────────────────────────\nfunction openCreateFlowModal(){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"flow-create-overlay\" onclick=\"if(event.target===this)closeCreateFlowModal()\">' +\n      '<div class=\"modal\" style=\"width:560px\">' +\n        '<div class=\"modal-title\">New flow file</div>' +\n        '<div class=\"two-col\" style=\"margin-bottom:12px\">' +\n          '<div class=\"form-group\"><label>Directory</label>' +\n            '<select id=\"fc-dir\">' +\n              '<option value=\"groups\">groups</option>' +\n              '<option value=\"devices\">devices</option>' +\n            '</select>' +\n          '</div>' +\n          '<div class=\"form-group\"><label>Filename</label>' +\n            '<input id=\"fc-name\" placeholder=\"e.g. sensors.flows.json\" />' +\n            '<span class=\"meta\">Must end in .flows.json</span>' +\n          '</div>' +\n        '</div>' +\n        '<div class=\"form-group\">' +\n          '<label>Flow JSON</label>' +\n          '<div id=\"fc-drop-zone\" ondragover=\"event.preventDefault();this.style.borderColor=\\'#185FA5\\'\" ondragleave=\"this.style.borderColor=\\'#e0e0e0\\'\" ondrop=\"handleFlowFileDrop(event,\\'fc-json\\')\" style=\"border:2px dashed #e0e0e0;border-radius:8px;padding:10px 12px;margin-bottom:8px;text-align:center;font-size:12px;color:#aaa;cursor:pointer\" onclick=\"document.getElementById(\\'fc-file-input\\').click()\">Drag & drop a .json file here, or click to browse</div>' +\n          '<input type=\"file\" id=\"fc-file-input\" accept=\".json\" style=\"display:none\" onchange=\"handleFlowFileInput(event,\\'fc-json\\')\" />' +\n          '<textarea id=\"fc-json\" rows=\"10\" placeholder=\"Paste Node-RED flow JSON here...\" style=\"width:100%;font-family:monospace;font-size:11px;resize:vertical\"></textarea>' +\n        '</div>' +\n        '<div class=\"modal-actions\">' +\n          '<button class=\"btn\" onclick=\"closeCreateFlowModal()\">Cancel</button>' +\n          '<button class=\"btn btn-primary\" onclick=\"submitCreateFlow()\">Create</button>' +\n        '</div>' +\n      '</div>' +\n    '</div>'\n  );\n}\nfunction closeCreateFlowModal(){ const o=document.getElementById('flow-create-overlay'); if(o) o.remove(); }\n\nfunction handleFlowFileDrop(e, targetId){\n  e.preventDefault();\n  e.currentTarget.style.borderColor = '#e0e0e0';\n  const file = e.dataTransfer.files[0];\n  if(!file) return;\n  const reader = new FileReader();\n  reader.onload = function(ev){ document.getElementById(targetId).value = ev.target.result; };\n  reader.readAsText(file);\n}\nfunction handleFlowFileInput(e, targetId){\n  const file = e.target.files[0];\n  if(!file) return;\n  const reader = new FileReader();\n  reader.onload = function(ev){ document.getElementById(targetId).value = ev.target.result; };\n  reader.readAsText(file);\n}\n\nfunction submitCreateFlow(){\n  const dir  = document.getElementById('fc-dir').value;\n  let name   = document.getElementById('fc-name').value.trim();\n  const json = document.getElementById('fc-json').value.trim();\n  if(!name){ showToast('Filename is required', true); return; }\n  if(!name.endsWith('.json')) name += '.flows.json';\n  if(!json){ showToast('Flow JSON is required', true); return; }\n  try{ JSON.parse(json); } catch(e){ showToast('Invalid JSON: ' + e.message, true); return; }\n  fetch('/fleet/flows', {\n    method:'POST',\n    headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({dir, name, content: json})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    if(r.ok){ showToast('Flow file created'); closeCreateFlowModal(); loadFlows(); }\n    else showToast(r.error||'Create failed', true);\n  }).catch(function(){ showToast('Request failed', true); });\n}\n\n// ── RENAME ────────────────────────────────────────────────────────────────────\nfunction openRenameFlowModal(path, name, dir){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"flow-rename-overlay\" onclick=\"if(event.target===this)closeRenameFlowModal()\">' +\n      '<div class=\"modal\">' +\n        '<div class=\"modal-title\">Rename flow file</div>' +\n        '<div class=\"form-group\"><label>New filename</label>' +\n          '<input id=\"fr-name\" value=\"' + name + '\" />' +\n          '<span class=\"meta\">Must end in .flows.json</span>' +\n        '</div>' +\n        '<div class=\"modal-actions\">' +\n          '<button class=\"btn\" onclick=\"closeRenameFlowModal()\">Cancel</button>' +\n          '<button class=\"btn btn-primary\" onclick=\"submitRenameFlow(\\'' + path + '\\',\\'' + dir + '\\')\">Rename</button>' +\n        '</div>' +\n      '</div>' +\n    '</div>'\n  );\n  setTimeout(function(){ const el=document.getElementById('fr-name'); if(el){ el.focus(); el.select(); } }, 100);\n}\nfunction closeRenameFlowModal(){ const o=document.getElementById('flow-rename-overlay'); if(o) o.remove(); }\n\nfunction submitRenameFlow(oldPath, dir){\n  let newName = document.getElementById('fr-name').value.trim();\n  if(!newName){ showToast('Filename is required', true); return; }\n  if(!newName.endsWith('.json')) newName += '.flows.json';\n  fetch('/fleet/flows', {\n    method:'PUT',\n    headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({path: oldPath, action:'rename', newName, dir})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    if(r.ok){ showToast('File renamed'); closeRenameFlowModal(); selectedFlowFile=null; document.getElementById('flows-deploy-btn').disabled=true; document.getElementById('flows-preview-title').textContent='Select a file to preview'; document.getElementById('flows-preview-empty').style.display='block'; document.getElementById('flows-renderer-container').style.display='none'; loadFlows(); }\n    else showToast(r.error||'Rename failed', true);\n  }).catch(function(){ showToast('Request failed', true); });\n}\n\n// ── EDIT JSON ─────────────────────────────────────────────────────────────────\nfunction openEditFlowModal(path, name){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"flow-edit-overlay\" onclick=\"if(event.target===this)closeEditFlowModal()\">' +\n      '<div class=\"modal\" style=\"width:600px\">' +\n        '<div class=\"modal-title\">Edit JSON — <span style=\"font-weight:400;font-family:monospace;font-size:14px\">' + name + '</span></div>' +\n        '<div class=\"form-group\">' +\n          '<label>Flow JSON</label>' +\n          '<div id=\"fe-drop-zone\" ondragover=\"event.preventDefault();this.style.borderColor=\\'#185FA5\\'\" ondragleave=\"this.style.borderColor=\\'#e0e0e0\\'\" ondrop=\"handleFlowFileDrop(event,\\'fe-json\\')\" style=\"border:2px dashed #e0e0e0;border-radius:8px;padding:8px 12px;margin-bottom:8px;text-align:center;font-size:12px;color:#aaa;cursor:pointer\" onclick=\"document.getElementById(\\'fe-file-input\\').click()\">Drag & drop a replacement .json file, or click to browse</div>' +\n          '<input type=\"file\" id=\"fe-file-input\" accept=\".json\" style=\"display:none\" onchange=\"handleFlowFileInput(event,\\'fe-json\\')\" />' +\n          '<textarea id=\"fe-json\" rows=\"14\" style=\"width:100%;font-family:monospace;font-size:11px;resize:vertical\">Loading...</textarea>' +\n        '</div>' +\n        '<div class=\"modal-actions\">' +\n          '<button class=\"btn\" onclick=\"closeEditFlowModal()\">Cancel</button>' +\n          '<button class=\"btn btn-primary\" onclick=\"submitEditFlow(\\'' + path + '\\')\">Save</button>' +\n        '</div>' +\n      '</div>' +\n    '</div>'\n  );\n  fetch('/fleet/flows?path=' + encodeURIComponent(path))\n    .then(function(r){ return r.json(); })\n    .then(function(r){\n      const ta = document.getElementById('fe-json');\n      if(ta) ta.value = r.ok ? JSON.stringify(r.nodes, null, 2) : (r.error||'Failed to load');\n    });\n}\nfunction closeEditFlowModal(){ const o=document.getElementById('flow-edit-overlay'); if(o) o.remove(); }\n\nfunction submitEditFlow(path){\n  const json = document.getElementById('fe-json').value.trim();\n  if(!json){ showToast('JSON is required', true); return; }\n  try{ JSON.parse(json); } catch(e){ showToast('Invalid JSON: ' + e.message, true); return; }\n  fetch('/fleet/flows', {\n    method:'PUT',\n    headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({path, action:'update', content: json})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    if(r.ok){ showToast('Flow file saved'); closeEditFlowModal(); if(selectedFlowFile===path){ const el=document.querySelector('.flow-file-item[data-path=\"'+path+'\"]'); if(el) selectFlow(el,path); } }\n    else showToast(r.error||'Save failed', true);\n  }).catch(function(){ showToast('Request failed', true); });\n}\n\n// ── DELETE ────────────────────────────────────────────────────────────────────\nfunction deleteFlow(path, name){\n  if(!confirm('Delete ' + name + '? This cannot be undone.')) return;\n  fetch('/fleet/flows', {\n    method:'DELETE',\n    headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({path})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    if(r.ok){ showToast(name + ' deleted'); if(selectedFlowFile===path){ selectedFlowFile=null; document.getElementById('flows-deploy-btn').disabled=true; document.getElementById('flows-preview-title').textContent='Select a file to preview'; document.getElementById('flows-preview-empty').style.display='block'; document.getElementById('flows-renderer-container').style.display='none'; } loadFlows(); }\n    else showToast(r.error||'Delete failed', true);\n  }).catch(function(){ showToast('Request failed', true); });\n}\n\nfunction openDeployWifiModal(){\n  const groups = getGroups();\n  const devices = getAllDevices();\n  const groupOpts = groups.map(function(g){ return '<option value=\"group::' + g + '\">Group: ' + g + '</option>'; }).join('');\n  const deviceOpts = devices.map(function(d){ return '<option value=\"device::' + d.name + '\">Device: ' + d.name + ' (' + d.group + ')</option>'; }).join('');\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"wifi-deploy-overlay\" onclick=\"if(event.target===this)closeDeployWifiModal()\">'+\n      '<div class=\"modal\">'+\n        '<div class=\"modal-title\">Deploy Wi-Fi credentials</div>'+\n        '<div class=\"form-group\">'+\n          '<label>Deploy target</label>'+\n          '<select id=\"wd-target\">'+\n            '<option value=\"fleet::\">All devices (fleet)</option>'+\n            '<optgroup label=\"Groups\">' + groupOpts + '</optgroup>'+\n            '<optgroup label=\"Devices\">' + deviceOpts + '</optgroup>'+\n          '</select>'+\n          '<span class=\"meta\">Pushes all saved Wi-Fi profiles via set_wifi.yml.</span>'+\n        '</div>'+\n        '<div id=\"wd-status\" style=\"font-size:12px;color:#888;min-height:18px;margin-bottom:4px\"></div>'+\n        '<div id=\"wd-output\" style=\"display:none;margin-bottom:12px\">'+\n          '<div style=\"font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px\">Output</div>'+\n          '<div class=\"output-box\" id=\"wd-output-box\" style=\"min-height:80px;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all\"></div>'+\n        '</div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeDeployWifiModal()\">Cancel</button>'+\n          '<button class=\"btn btn-primary\" id=\"wd-confirm-btn\" onclick=\"submitDeployWifi()\">Deploy</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n}\nfunction closeDeployWifiModal(){ const o=document.getElementById('wifi-deploy-overlay'); if(o) o.remove(); }\nfunction submitDeployWifi(){\n  const val = document.getElementById('wd-target').value;\n  const parts = val.split('::'); const type=parts[0]; const target=parts[1];\n  const btn = document.getElementById('wd-confirm-btn');\n  const status = document.getElementById('wd-status');\n  btn.disabled=true; btn.textContent='Deploying...'; status.textContent='Running...'; status.style.color='#888';\n  const limit = type==='device' ? target : (type==='group' ? target : '');\n  fetch('/fleet/run',{\n    method:'POST', headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({playbook:'playbooks/set_wifi.yml', limit:limit, extra_vars:''})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    var ow=document.getElementById('wd-output'),ob=document.getElementById('wd-output-box');\n    if(ow) ow.style.display='block'; if(ob) ob.textContent=r.output||r.error||'No output';\n    if(r.ok){\n      status.textContent='Deployed successfully.'; status.style.color='#085041';\n      showToast('Wi-Fi credentials deployed');\n      btn.textContent='Close'; btn.disabled=false; btn.onclick=function(){ closeDeployWifiModal(); };\n    } else { status.textContent='Deploy failed: '+(r.error||'unknown'); status.style.color='#e53e3e'; btn.disabled=false; btn.textContent='Deploy'; }\n  }).catch(function(){ status.textContent='Request failed'; status.style.color='#e53e3e'; btn.disabled=false; btn.textContent='Deploy'; });\n}\n\nlet selectedSettingsFile = null;\nlet settingsData = [];\n\nfunction loadSettings(){\n  const list = document.getElementById('settings-list');\n  list.innerHTML = '<div style=\"padding:16px;color:#bbb;font-size:13px\">Loading...</div>';\n  fetch('/fleet/settings')\n    .then(function(r){ return r.json(); })\n    .then(function(r){\n      if(!r.ok || !r.files.length){ list.innerHTML = '<div style=\"padding:16px;color:#bbb;font-size:13px\">No settings files found.</div>'; return; }\n      settingsData = r.files;\n      list.innerHTML = r.files.map(function(f){\n        return '<div class=\"flow-file-item\" data-path=\"' + f.path + '\" onclick=\"selectSettings(this,\\'' + f.path + '\\')\" style=\"padding:8px 14px 6px;font-size:13px;cursor:pointer;border-bottom:0.5px solid #f0f0f0;transition:background .1s\">'+\n          '<div style=\"font-weight:500;margin-bottom:2px\">' + f.name + '</div>'+\n          '<div style=\"font-size:11px;color:#aaa;margin-bottom:6px\">' + f.path + '</div>'+\n          '<div style=\"display:flex;gap:4px\" onclick=\"event.stopPropagation()\">'+\n            '<button class=\"btn btn-sm\" style=\"font-size:10px;padding:1px 7px\" onclick=\"openRenameSettingsModal(\\'' + f.path + '\\',\\'' + f.name + '\\')\" >Rename</button>'+\n            '<button class=\"btn btn-sm\" style=\"font-size:10px;padding:1px 7px\" onclick=\"openEditSettingsModal(\\'' + f.path + '\\',\\'' + f.name + '\\')\" >Edit</button>'+\n            '<button class=\"btn btn-sm btn-danger\" style=\"font-size:10px;padding:1px 7px\" onclick=\"deleteSettings(\\'' + f.path + '\\',\\'' + f.name + '\\')\" >Del</button>'+\n          '</div>'+\n        '</div>';\n      }).join('');\n    })\n    .catch(function(){ list.innerHTML = '<div style=\"padding:16px;color:#e53e3e;font-size:13px\">Failed to load.</div>'; });\n}\n\nfunction selectSettings(el, path){\n  document.querySelectorAll('.flow-file-item').forEach(function(i){ i.style.background=''; });\n  el.style.background = '#f0f7ff';\n  selectedSettingsFile = path;\n  document.getElementById('settings-deploy-btn').disabled = false;\n  const f = settingsData.find(function(x){ return x.path===path; });\n  document.getElementById('settings-preview-title').textContent = f ? f.name : path;\n  document.getElementById('settings-preview-empty').style.display = 'none';\n  document.getElementById('settings-preview-content').style.display = 'block';\n  document.getElementById('settings-preview-raw').textContent = 'Loading...';\n  fetch('/fleet/settings?path=' + encodeURIComponent(path))\n    .then(function(r){ return r.json(); })\n    .then(function(r){\n      document.getElementById('settings-preview-raw').textContent = r.ok ? r.content : (r.error||'Failed to load');\n      document.getElementById('settings-preview-meta').textContent = r.ok ? Math.round(r.content.length/1024*10)/10 + ' KB' : '';\n    })\n    .catch(function(){ document.getElementById('settings-preview-raw').textContent = 'Failed to load'; });\n}\n\nfunction deploySelectedSettings(){\n  if(!selectedSettingsFile) return;\n  const f = settingsData.find(function(x){ return x.path===selectedSettingsFile; });\n  const groups = getGroups(); const devices = getAllDevices();\n  const groupOpts = groups.map(function(g){ return '<option value=\"group::' + g + '\">Group: ' + g + '</option>'; }).join('');\n  const deviceOpts = devices.map(function(d){ return '<option value=\"device::' + d.name + '\">Device: ' + d.name + ' (' + d.group + ')</option>'; }).join('');\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"settings-deploy-overlay\" onclick=\"if(event.target===this)closeDeploySettingsModal()\">'+\n      '<div class=\"modal\">'+\n        '<div class=\"modal-title\">Deploy settings</div>'+\n        '<div class=\"form-group\" style=\"margin-bottom:6px\">'+\n          '<label>Settings file</label>'+\n          '<div style=\"font-size:13px;font-family:monospace;padding:4px 0;color:#444\">' + (f?f.name:selectedSettingsFile) + '</div>'+\n        '</div>'+\n        '<div class=\"form-group\">'+\n          '<label>Deploy target</label>'+\n          '<select id=\"sd-target\">'+\n            '<option value=\"fleet::\">All devices (fleet)</option>'+\n            '<optgroup label=\"Groups\">' + groupOpts + '</optgroup>'+\n            '<optgroup label=\"Devices\">' + deviceOpts + '</optgroup>'+\n          '</select>'+\n          '<span class=\"meta\">Deploys via deploy_nodered_settings.yml. Node-RED restarts on target after deploy.</span>'+\n        '</div>'+\n        '<div id=\"sd-status\" style=\"font-size:12px;color:#888;min-height:18px;margin-bottom:4px\"></div>'+\n        '<div id=\"sd-output\" style=\"display:none;margin-bottom:12px\">'+\n          '<div style=\"font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px\">Output</div>'+\n          '<div class=\"output-box\" id=\"sd-output-box\" style=\"min-height:80px;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all\"></div>'+\n        '</div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeDeploySettingsModal()\">Cancel</button>'+\n          '<button class=\"btn btn-primary\" id=\"sd-confirm-btn\" onclick=\"submitDeploySettings(\\'' + selectedSettingsFile + '\\')\" >Deploy</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n}\nfunction closeDeploySettingsModal(){ const o=document.getElementById('settings-deploy-overlay'); if(o) o.remove(); }\nfunction submitDeploySettings(filePath){\n  const val = document.getElementById('sd-target').value;\n  const parts = val.split('::'); const type=parts[0]; const target=parts[1];\n  const btn = document.getElementById('sd-confirm-btn');\n  const status = document.getElementById('sd-status');\n  btn.disabled=true; btn.textContent='Deploying...'; status.textContent='Running...'; status.style.color='#888';\n  const limit = type==='device' ? target : (type==='group' ? target : '');\n  fetch('/fleet/run',{\n    method:'POST', headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({playbook:'playbooks/deploy_nodered_settings.yml', limit:limit, extra_vars:'settings_file='+filePath})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    var ow=document.getElementById('sd-output'),ob=document.getElementById('sd-output-box');\n    if(ow) ow.style.display='block'; if(ob) ob.textContent=r.output||r.error||'No output';\n    if(r.ok){\n      status.textContent='Deployed successfully.'; status.style.color='#085041';\n      showToast('Settings deployed');\n      btn.textContent='Close'; btn.disabled=false; btn.onclick=function(){ closeDeploySettingsModal(); };\n    } else { status.textContent='Deploy failed: '+(r.error||'unknown'); status.style.color='#e53e3e'; btn.disabled=false; btn.textContent='Deploy'; }\n  }).catch(function(){ status.textContent='Request failed'; status.style.color='#e53e3e'; btn.disabled=false; btn.textContent='Deploy'; });\n}\n\nfunction openCreateSettingsModal(){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"sc-overlay\" onclick=\"if(event.target===this)closeCreateSettingsModal()\">'+\n      '<div class=\"modal\" style=\"width:580px\">'+\n        '<div class=\"modal-title\">New settings file</div>'+\n        '<div class=\"form-group\"><label>Filename</label><input id=\"sc-name\" placeholder=\"e.g. settings-factory.js\" /></div>'+\n        '<div class=\"form-group\">'+\n          '<label>Content</label>'+\n          '<div ondragover=\"event.preventDefault();this.style.borderColor=\\'#185FA5\\'\" ondragleave=\"this.style.borderColor=\\'#e0e0e0\\'\" ondrop=\"handleSettingsFileDrop(event,\\'sc-content\\')\" style=\"border:2px dashed #e0e0e0;border-radius:8px;padding:8px 12px;margin-bottom:8px;text-align:center;font-size:12px;color:#aaa;cursor:pointer\" onclick=\"document.getElementById(\\'sc-file-input\\').click()\">Drag & drop a .js file, or click to browse</div>'+\n          '<input type=\"file\" id=\"sc-file-input\" accept=\".js,.json\" style=\"display:none\" onchange=\"handleSettingsFileInput(event,\\'sc-content\\')\" />'+\n          '<textarea id=\"sc-content\" rows=\"12\" placeholder=\"Paste Node-RED settings.js content here...\" style=\"width:100%;font-family:monospace;font-size:11px;resize:vertical\"></textarea>'+\n        '</div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeCreateSettingsModal()\">Cancel</button>'+\n          '<button class=\"btn btn-primary\" onclick=\"submitCreateSettings()\">Create</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n}\nfunction closeCreateSettingsModal(){ const o=document.getElementById('sc-overlay'); if(o) o.remove(); }\nfunction handleSettingsFileDrop(e,tid){ e.preventDefault(); e.currentTarget.style.borderColor='#e0e0e0'; const file=e.dataTransfer.files[0]; if(!file) return; const r=new FileReader(); r.onload=function(ev){ document.getElementById(tid).value=ev.target.result; }; r.readAsText(file); }\nfunction handleSettingsFileInput(e,tid){ const file=e.target.files[0]; if(!file) return; const r=new FileReader(); r.onload=function(ev){ document.getElementById(tid).value=ev.target.result; }; r.readAsText(file); }\nfunction submitCreateSettings(){\n  const name=document.getElementById('sc-name').value.trim();\n  const content=document.getElementById('sc-content').value.trim();\n  if(!name){ showToast('Filename is required',true); return; }\n  if(!content){ showToast('Content is required',true); return; }\n  fetch('/fleet/settings',{ method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({name,content}) })\n    .then(function(r){ return r.json(); }).then(function(r){\n      if(r.ok){ showToast('Settings file created'); closeCreateSettingsModal(); loadSettings(); }\n      else showToast(r.error||'Create failed',true);\n    }).catch(function(){ showToast('Request failed',true); });\n}\n\nfunction openRenameSettingsModal(path,name){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"sr-overlay\" onclick=\"if(event.target===this)closeRenameSettingsModal()\">'+\n      '<div class=\"modal\">'+\n        '<div class=\"modal-title\">Rename settings file</div>'+\n        '<div class=\"form-group\"><label>New filename</label><input id=\"sr-name\" value=\"'+name+'\" /></div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeRenameSettingsModal()\">Cancel</button>'+\n          '<button class=\"btn btn-primary\" onclick=\"submitRenameSettings(\\'' + path + '\\')\" >Rename</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n  setTimeout(function(){ const el=document.getElementById('sr-name'); if(el){ el.focus(); el.select(); } },100);\n}\nfunction closeRenameSettingsModal(){ const o=document.getElementById('sr-overlay'); if(o) o.remove(); }\nfunction submitRenameSettings(oldPath){\n  const newName=document.getElementById('sr-name').value.trim();\n  if(!newName){ showToast('Filename is required',true); return; }\n  fetch('/fleet/settings',{ method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path:oldPath,action:'rename',newName}) })\n    .then(function(r){ return r.json(); }).then(function(r){\n      if(r.ok){ showToast('File renamed'); closeRenameSettingsModal(); selectedSettingsFile=null; document.getElementById('settings-deploy-btn').disabled=true; document.getElementById('settings-preview-title').textContent='Select a file to preview'; document.getElementById('settings-preview-empty').style.display='block'; document.getElementById('settings-preview-content').style.display='none'; loadSettings(); }\n      else showToast(r.error||'Rename failed',true);\n    }).catch(function(){ showToast('Request failed',true); });\n}\n\nfunction openEditSettingsModal(path,name){\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"se-overlay\" onclick=\"if(event.target===this)closeEditSettingsModal()\">'+\n      '<div class=\"modal\" style=\"width:640px\">'+\n        '<div class=\"modal-title\">Edit — <span style=\"font-weight:400;font-family:monospace;font-size:14px\">'+name+'</span></div>'+\n        '<div class=\"form-group\">'+\n          '<label>Content</label>'+\n          '<div ondragover=\"event.preventDefault();this.style.borderColor=\\'#185FA5\\'\" ondragleave=\"this.style.borderColor=\\'#e0e0e0\\'\" ondrop=\"handleSettingsFileDrop(event,\\'se-content\\')\" style=\"border:2px dashed #e0e0e0;border-radius:8px;padding:8px 12px;margin-bottom:8px;text-align:center;font-size:12px;color:#aaa;cursor:pointer\" onclick=\"document.getElementById(\\'se-file-input\\').click()\">Drag & drop a replacement file, or click to browse</div>'+\n          '<input type=\"file\" id=\"se-file-input\" accept=\".js,.json\" style=\"display:none\" onchange=\"handleSettingsFileInput(event,\\'se-content\\')\" />'+\n          '<textarea id=\"se-content\" rows=\"16\" style=\"width:100%;font-family:monospace;font-size:11px;resize:vertical\">Loading...</textarea>'+\n        '</div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeEditSettingsModal()\">Cancel</button>'+\n          '<button class=\"btn btn-primary\" onclick=\"submitEditSettings(\\'' + path + '\\')\" >Save</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n  fetch('/fleet/settings?path='+encodeURIComponent(path)).then(function(r){ return r.json(); }).then(function(r){ const ta=document.getElementById('se-content'); if(ta) ta.value=r.ok?r.content:(r.error||'Failed'); });\n}\nfunction closeEditSettingsModal(){ const o=document.getElementById('se-overlay'); if(o) o.remove(); }\nfunction submitEditSettings(path){\n  const content=document.getElementById('se-content').value.trim();\n  if(!content){ showToast('Content is required',true); return; }\n  fetch('/fleet/settings',{ method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path,action:'update',content}) })\n    .then(function(r){ return r.json(); }).then(function(r){\n      if(r.ok){ showToast('Settings saved'); closeEditSettingsModal(); if(selectedSettingsFile===path) selectSettings(document.querySelector('.flow-file-item[data-path=\"'+path+'\"]'),path); }\n      else showToast(r.error||'Save failed',true);\n    }).catch(function(){ showToast('Request failed',true); });\n}\n\nfunction deleteSettings(path,name){\n  if(!confirm('Delete '+name+'? This cannot be undone.')) return;\n  fetch('/fleet/settings',{ method:'DELETE', headers:{'Content-Type':'application/json'}, body:JSON.stringify({path}) })\n    .then(function(r){ return r.json(); }).then(function(r){\n      if(r.ok){ showToast(name+' deleted'); if(selectedSettingsFile===path){ selectedSettingsFile=null; document.getElementById('settings-deploy-btn').disabled=true; document.getElementById('settings-preview-title').textContent='Select a file to preview'; document.getElementById('settings-preview-empty').style.display='block'; document.getElementById('settings-preview-content').style.display='none'; } loadSettings(); }\n      else showToast(r.error||'Delete failed',true);\n    }).catch(function(){ showToast('Request failed',true); });\n}\n\nconst CACHE_ACTIONS = {\n  install_apt: {\n    title: 'Install APT packages',\n    desc: 'Installs packages from the apt-cacher-ng cache on the control Pi onto target devices. Leave package name blank to install all pre-cached packages.',\n    playbook: 'playbooks/install_apt.yml',\n    extraKey: 'package_name',\n    extraLabel: 'Package name (optional)',\n    extraPlaceholder: 'Leave blank to install all pre-cached packages',\n    extraRequired: false,\n    needsControlIp: true\n  },\n  install_npm: {\n    title: 'Update NPM modules',\n    desc: 'Installs or updates all NPM modules listed in vars/packages.yml from Verdaccio on the control Pi.',\n    playbook: 'playbooks/install_npm.yml',\n    extraKey: null,\n    extraRequired: false,\n    needsControlIp: true\n  }\n};\n\nfunction openCacheActionModal(action){\n  const cfg = CACHE_ACTIONS[action];\n  if(!cfg) return;\n  const groups = getGroups();\n  const devices = getAllDevices();\n  const groupOpts = groups.map(function(g){ return '<option value=\"group::'+g+'\">Group: '+g+'</option>'; }).join('');\n  const deviceOpts = devices.map(function(d){ return '<option value=\"device::'+d.name+'\">Device: '+d.name+' ('+d.group+')</option>'; }).join('');\n  const extraField = cfg.extraKey\n    ? '<div class=\"form-group\"><label>'+cfg.extraLabel+'</label><input id=\"ca-extra\" placeholder=\"'+cfg.extraPlaceholder+'\" /></div>'\n    : '';\n  const ipOpts = (window._controlPiIPs||[]).map(function(ip){\n    return '<option value=\"'+ip.address+'\">'+ip.iface+' — '+ip.address+'</option>';\n  }).join('');\n  const ipField = cfg.needsControlIp\n    ? '<div class=\"form-group\"><label>Control Pi IP address</label>'+\n      '<select id=\"ca-control-ip\">' + (ipOpts || '<option value=\"\">No interfaces found</option>') + '</select>'+\n      '<span class=\"meta\">The IP address fleet devices will use to reach the control Pi.</span></div>'\n    : '';\n  document.body.insertAdjacentHTML('beforeend',\n    '<div class=\"modal-wrap\" id=\"cache-action-overlay\" onclick=\"if(event.target===this)closeCacheActionModal()\">'+\n      '<div class=\"modal\">'+\n        '<div class=\"modal-title\">'+cfg.title+'</div>'+\n        '<p style=\"font-size:13px;color:#888;margin:0 0 16px\">'+cfg.desc+'</p>'+\n        ipField+\n        extraField+\n        '<div class=\"form-group\">'+\n          '<label>Target</label>'+\n          '<select id=\"ca-target\">'+\n            '<option value=\"fleet::\">All devices (fleet)</option>'+\n            '<optgroup label=\"Groups\">'+groupOpts+'</optgroup>'+\n            '<optgroup label=\"Devices\">'+deviceOpts+'</optgroup>'+\n          '</select>'+\n        '</div>'+\n        '<div id=\"ca-status\" style=\"font-size:12px;color:#888;min-height:18px;margin-bottom:4px\"></div>'+\n        '<div id=\"ca-output\" style=\"display:none;margin-bottom:12px\">'+\n          '<div style=\"font-size:11px;font-weight:600;color:#888;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px\">Output</div>'+\n          '<div class=\"output-box\" id=\"ca-output-box\" style=\"min-height:80px;max-height:220px;overflow-y:auto;white-space:pre-wrap;word-break:break-all\"></div>'+\n        '</div>'+\n        '<div class=\"modal-actions\">'+\n          '<button class=\"btn\" onclick=\"closeCacheActionModal()\">Cancel</button>'+\n          '<button class=\"btn btn-primary\" id=\"ca-confirm-btn\" onclick=\"submitCacheAction(\\'' + action + '\\')\" >Run</button>'+\n        '</div>'+\n      '</div>'+\n    '</div>'\n  );\n}\n\nfunction closeCacheActionModal(){ const o=document.getElementById('cache-action-overlay'); if(o) o.remove(); }\n\nfunction submitCacheAction(action){\n  const cfg = CACHE_ACTIONS[action];\n  const val = document.getElementById('ca-target').value;\n  const parts = val.split('::'); const type=parts[0]; const target=parts[1];\n  const btn = document.getElementById('ca-confirm-btn');\n  const status = document.getElementById('ca-status');\n  const extraParts = [];\n  if(cfg.needsControlIp){\n    const ipEl = document.getElementById('ca-control-ip');\n    const ipVal = ipEl ? ipEl.value.trim() : '';\n    if(!ipVal){ showToast('Control Pi IP address is required', true); return; }\n    extraParts.push('control_pi_ip=' + ipVal);\n  }\n  if(cfg.extraKey){\n    const extraEl = document.getElementById('ca-extra');\n    const extraVal = extraEl ? extraEl.value.trim() : '';\n    if(cfg.extraRequired && !extraVal){ showToast(cfg.extraLabel + ' is required', true); return; }\n    if(extraVal) extraParts.push(cfg.extraKey + '=' + extraVal);\n  }\n  // Pass top-level cached package names from NPM Cache table (not transitive deps)\n  if(action === 'install_npm' && npmPackages.length){\n    const pkgList = npmPackages.map(function(p){ return p.name; }).join(',');\n    extraParts.push('npm_package_list=' + pkgList);\n  }\n  btn.disabled=true; btn.textContent='Running...'; status.textContent='Running...'; status.style.color='#888';\n  const limit = type==='device' ? target : (type==='group' ? target : '');\n  fetch('/fleet/run',{\n    method:'POST', headers:{'Content-Type':'application/json'},\n    body:JSON.stringify({playbook:cfg.playbook, limit:limit, extra_vars:extraParts.join(' ')})\n  }).then(function(r){ return r.json(); }).then(function(r){\n    var ow=document.getElementById('ca-output'),ob=document.getElementById('ca-output-box');\n    if(ow) ow.style.display='block'; if(ob) ob.textContent=r.output||r.error||'No output';\n    if(r.ok){\n      status.textContent='Completed successfully.'; status.style.color='#085041';\n      showToast(cfg.title + ' completed');\n      btn.textContent='Close'; btn.disabled=false; btn.onclick=function(){ closeCacheActionModal(); };\n    } else { status.textContent='Failed: '+(r.error||'unknown'); status.style.color='#e53e3e'; btn.disabled=false; btn.textContent='Run'; }\n  }).catch(function(){ status.textContent='Request failed'; status.style.color='#e53e3e'; btn.disabled=false; btn.textContent='Run'; });\n}\n\nrenderTable();\npopulateRunSelects();\npingAll();\nloadFacts();\nsetInterval(pingAll, 10000);\n  </script>\n</body>\n\n</html>",
+        "x": 740,
+        "y": 140,
+        "wires": [
+            [
+                "ce51678f5104aba5"
+            ]
+        ]
+    },
+    {
+        "id": "ce51678f5104aba5",
+        "type": "http response",
+        "z": "956095503019cbf0",
+        "name": "",
+        "statusCode": "200",
+        "headers": {
+            "content-type": "text/html"
+        },
+        "x": 1120,
+        "y": 860,
+        "wires": []
+    },
+    {
+        "id": "09e3dc9d43c3937f",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/ping",
+        "url": "/fleet/ping",
+        "method": "post",
+        "upload": false,
+        "x": 140,
+        "y": 440,
+        "wires": [
+            [
+                "6ed5c07c559443ac"
+            ]
+        ]
+    },
+    {
+        "id": "6ed5c07c559443ac",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Ping device",
+        "func": "const {execSync} = global.get('child_process');\nconst {name,ip} = msg.payload;\nif(!ip){ msg.payload={ok:true,online:false,name}; return msg; }\ntry { execSync(`ping -c 1 -W 2 ${ip}`,{timeout:3000}); msg.payload={ok:true,online:true,name}; }\ncatch(e){ msg.payload={ok:true,online:false,name}; }\nreturn msg;",
+        "outputs": 1,
+        "x": 470,
+        "y": 440,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "3925e7a6e0ea26cc",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/device",
+        "url": "/fleet/device",
+        "method": "post",
+        "upload": false,
+        "x": 150,
+        "y": 500,
+        "wires": [
+            [
+                "9a30b8fba58d7079"
+            ]
+        ]
+    },
+    {
+        "id": "9a30b8fba58d7079",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Add device",
+        "func": "const fs=global.get('fs');\nconst body=msg.payload;\nif(!body.name||!body.ansible_host||!body.group){msg.payload={ok:false,error:'Missing name, IP or group'};return msg;}\nconst iniPath='/home/pi/fleet-management/inventory.ini';\nlet raw=fs.readFileSync(iniPath,'utf8');\nconst extra=Object.entries(body).filter(([k])=>!['name','ansible_host','group'].includes(k)).map(([k,v])=>`${k}=${v}`).join(' ');\nconst newLine=`${body.name} ansible_host=${body.ansible_host} ${extra}`.trim();\nconst header=`[${body.group}]`;\nif(raw.includes(header)){raw=raw.replace(header,header+'\\n'+newLine);}else{raw+=`\\n${header}\\n${newLine}\\n`;}\nfs.writeFileSync(iniPath,raw);\nmsg.payload={ok:true};\nreturn msg;",
+        "outputs": 1,
+        "x": 470,
+        "y": 500,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "51d0f9a6d92dd5f4",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "PUT /fleet/device",
+        "url": "/fleet/device",
+        "method": "put",
+        "upload": false,
+        "x": 140,
+        "y": 560,
+        "wires": [
+            [
+                "091e80e6113590a5"
+            ]
+        ]
+    },
+    {
+        "id": "091e80e6113590a5",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Edit device",
+        "func": "const fs=global.get('fs');\nconst body=msg.payload;\nconst iniPath='/home/pi/fleet-management/inventory.ini';\nlet raw=fs.readFileSync(iniPath,'utf8');\nconst lines=raw.split('\\n');\nlet currentGroup=null;\nconst updated=lines.map(line=>{\n  const t=line.trim();\n  const gm=t.match(/^\\[([^\\]:]+)\\]$/);\n  if(gm){currentGroup=gm[1];return line;}\n  if(currentGroup&&t.startsWith(body.name+' ')){\n    const extra=Object.entries(body).filter(([k])=>!['name','ansible_host','group'].includes(k)).map(([k,v])=>`${k}=${v}`).join(' ');\n    return `${body.name} ansible_host=${body.ansible_host} ${extra}`.trim();\n  }\n  return line;\n});\nfs.writeFileSync(iniPath,updated.join('\\n'));\nmsg.payload={ok:true};\nreturn msg;",
+        "outputs": 1,
+        "x": 470,
+        "y": 560,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "026e1ff82f4d1f5b",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "DELETE /fleet/device",
+        "url": "/fleet/device",
+        "method": "delete",
+        "upload": false,
+        "x": 160,
+        "y": 620,
+        "wires": [
+            [
+                "5205761baab2c9ca"
+            ]
+        ]
+    },
+    {
+        "id": "5205761baab2c9ca",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Delete device",
+        "func": "const fs=global.get('fs');\nconst name=msg.payload.name;\nconst iniPath='/home/pi/fleet-management/inventory.ini';\nlet raw=fs.readFileSync(iniPath,'utf8');\nconst lines=raw.split('\\n').filter(line=>{const t=line.trim();return !t.startsWith(name+' ')&&t!==name;});\nfs.writeFileSync(iniPath,lines.join('\\n'));\nmsg.payload={ok:true};\nreturn msg;",
+        "outputs": 1,
+        "x": 460,
+        "y": 620,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "7bd6af0f1ada6f4b",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/move",
+        "url": "/fleet/move",
+        "method": "post",
+        "upload": false,
+        "x": 140,
+        "y": 680,
+        "wires": [
+            [
+                "bb49441b317e4a2e"
+            ]
+        ]
+    },
+    {
+        "id": "bb49441b317e4a2e",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Move device",
+        "func": "const fs=global.get('fs');\nconst {name,to}=msg.payload;\nconst iniPath='/home/pi/fleet-management/inventory.ini';\nlet raw=fs.readFileSync(iniPath,'utf8');\nconst lines=raw.split('\\n');\nlet currentGroup=null,deviceLine='';\nconst filtered=lines.filter(line=>{\n  const t=line.trim();\n  const gm=t.match(/^\\[([^\\]:]+)\\]$/);\n  if(gm){currentGroup=gm[1];return true;}\n  if(currentGroup&&t.startsWith(name+' ')){deviceLine=t;return false;}\n  return true;\n});\nconst toHeader=`[${to}]`;\nconst result=filtered.map(l=>l.trim()===toHeader?toHeader+'\\n'+deviceLine:l);\nfs.writeFileSync(iniPath,result.join('\\n'));\nmsg.payload={ok:true};\nreturn msg;",
+        "outputs": 1,
+        "x": 470,
+        "y": 680,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "eba27b5f0d64a051",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/group",
+        "url": "/fleet/group",
+        "method": "post",
+        "upload": false,
+        "x": 150,
+        "y": 740,
+        "wires": [
+            [
+                "d8218c6589ebbfb3"
+            ]
+        ]
+    },
+    {
+        "id": "d8218c6589ebbfb3",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Add group",
+        "func": "const fs=global.get('fs');\nconst {name, desc}=msg.payload;\nif(!name){msg.payload={ok:false,error:'Group name required'};return msg;}\nconst iniPath='/home/pi/fleet-management/inventory.ini';\nlet raw=fs.readFileSync(iniPath,'utf8');\nif(raw.includes(`[${name}]`)){msg.payload={ok:false,error:'Group already exists'};return msg;}\nraw=raw.trimEnd()+`\\n\\n[${name}]\\n`;\nif(raw.includes('[fleet:children]')){\n  raw=raw.replace('[fleet:children]',`[fleet:children]\\n${name}`);\n} else {\n  raw=raw.trimEnd()+`\\n\\n[fleet:children]\\n${name}\\n`;\n}\nfs.writeFileSync(iniPath,raw);\nif(desc){\n  const descs = flow.get('groupDescriptions') || {};\n  descs[name] = desc;\n  flow.set('groupDescriptions', descs);\n}\nmsg.payload={ok:true};\nreturn msg;\n",
+        "outputs": 1,
+        "x": 470,
+        "y": 740,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "0015738766168d3b",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "DELETE /fleet/group",
+        "url": "/fleet/group",
+        "method": "delete",
+        "upload": false,
+        "x": 150,
+        "y": 920,
+        "wires": [
+            [
+                "47954ff08d1fc155"
+            ]
+        ]
+    },
+    {
+        "id": "47954ff08d1fc155",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Delete group",
+        "func": "const fs=global.get('fs');\nconst {name}=msg.payload;\nconst iniPath='/home/pi/fleet-management/inventory.ini';\nlet raw=fs.readFileSync(iniPath,'utf8');\nconst lines=raw.split('\\n');\nlet inGroup=false,hasDevices=false;\nfor(const line of lines){\n  const t=line.trim();\n  const gm=t.match(/^\\[([^\\]:]+)\\]$/);\n  if(gm){inGroup=gm[1]===name;continue;}\n  if(inGroup&&t&&t.includes('ansible_host')){hasDevices=true;break;}\n}\nif(hasDevices){msg.payload={ok:false,error:'Move all devices out first'};return msg;}\nlet skip=false;\nconst withoutGroup=lines.filter(line=>{\n  const t=line.trim();\n  if(t===`[${name}]`){skip=true;return false;}\n  if(skip&&t.startsWith('[')){skip=false;}\n  return !skip;\n});\nconst result=withoutGroup.filter(line=>line.trim()!==name);\nfs.writeFileSync(iniPath,result.join('\\n'));\nmsg.payload={ok:true};\nreturn msg;\nconst descs = flow.get('groupDescriptions') || {};\nif(descs[name]){ delete descs[name]; flow.set('groupDescriptions', descs); }\n",
+        "outputs": 1,
+        "x": 470,
+        "y": 920,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "6c2d6e7d41ba9ca1",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "GET /fleet/cache/apt",
+        "url": "/fleet/cache/apt",
+        "method": "get",
+        "upload": false,
+        "x": 150,
+        "y": 1220,
+        "wires": [
+            [
+                "e8105e0f417bfb78"
+            ]
+        ]
+    },
+    {
+        "id": "e8105e0f417bfb78",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "List APT cache",
+        "func": "const fs = global.get('fs');\nconst cacheDir = '/var/cache/apt-cacher-ng';\nconst pkgFile = '/home/pi/fleet-management/vars/packages.yml';\nlet userPackages = [];\n\ntry {\n    const raw = fs.readFileSync(pkgFile, 'utf8');\n    let inSection = false;\n    raw.split('\\n').forEach(function(line) {\n        if (line.trim() === 'apt_packages:') { inSection = true; return; }\n        if (inSection) {\n            if (line.match(/^\\w/) && !line.startsWith(' ') && !line.startsWith('-')) { inSection = false; return; }\n            const m = line.match(/^\\s+-\\s+(.+)$/);\n            if (m) userPackages.push(m[1].trim());\n        }\n    });\n} catch(e) {\n    node.warn('Could not read packages.yml: ' + e.message);\n}\n\n// Find matching .deb files in cache for each tracked package\nconst packages = [];\nconst walk = function(dir) {\n    try {\n        const entries = fs.readdirSync(dir, { withFileTypes: true });\n        for (const e of entries) {\n            if (e.isDirectory()) walk(dir + '/' + e.name);\n            else if (e.name.endsWith('.deb')) {\n                const parts = e.name.replace('.deb','').split('_');\n                const pkgName = parts[0];\n                if (userPackages.includes(pkgName)) {\n                    const stat = fs.statSync(dir + '/' + e.name);\n                    packages.push({ file: dir+'/'+e.name, name: pkgName, version: parts[1]||'', size: stat.size });\n                }\n            }\n        }\n    } catch(e) {}\n};\nwalk(cacheDir);\npackages.sort(function(a,b){ return a.name.localeCompare(b.name); });\n\n// Include packages tracked in yml but not yet found in cache (show with no file)\nconst foundNames = packages.map(function(p){ return p.name; });\nuserPackages.forEach(function(name) {\n    if (!foundNames.includes(name)) {\n        packages.push({ file: '', name: name, version: '—', size: 0 });\n    }\n});\n\nmsg.payload = { ok: true, packages };\nreturn msg;\n",
+        "outputs": 1,
+        "x": 460,
+        "y": 1220,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "08820b65b6690c64",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/cache/apt",
+        "url": "/fleet/cache/apt",
+        "method": "post",
+        "upload": false,
+        "x": 160,
+        "y": 1280,
+        "wires": [
+            [
+                "6dfc2f33fde275bb"
+            ]
+        ]
+    },
+    {
+        "id": "6dfc2f33fde275bb",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Download APT package",
+        "func": "const fs = global.get('fs');\nconst { execSync } = global.get('child_process');\nconst { name } = msg.payload;\nconst pkgFile = '/home/pi/fleet-management/vars/packages.yml';\n\nif (!name) { msg.payload = { ok: false, error: 'Package name required' }; return msg; }\n\ntry {\n    execSync(`mkdir -p /tmp/apt-download && cd /tmp/apt-download && apt-get download ${name} 2>&1`, { timeout: 60000 });\n    const deb = execSync(`ls /tmp/apt-download/${name}*.deb 2>&1`).toString().trim();\n    if (!deb) throw new Error('deb file not found after download');\n    const filename = deb.split('/').pop();\n    execSync(`sudo mv ${deb} /var/cache/apt-cacher-ng/${filename}`);\n    execSync(`rm -f /tmp/apt-download/${name}*.deb`);\n\n    // Add to apt_packages section in packages.yml\n    let lines = [];\n    try { lines = fs.readFileSync(pkgFile, 'utf8').split('\\n'); } catch(e) {}\n    const already = lines.some(function(l) { const m=l.match(/^\\s+-\\s+(.+)$/); return m && m[1].trim()===name; });\n    if (!already) {\n        const sectionIdx = lines.findIndex(function(l){ return l.trim() === 'apt_packages:'; });\n        if (sectionIdx >= 0) {\n            lines.splice(sectionIdx + 1, 0, ' - ' + name);\n        } else {\n            if (lines.length && lines[lines.length-1] !== '') lines.push('');\n            lines.push('apt_packages:');\n            lines.push(' - ' + name);\n        }\n        fs.writeFileSync(pkgFile, lines.join('\\n'));\n    }\n\n    msg.payload = { ok: true };\n} catch(e) {\n    msg.payload = { ok: false, error: e.stderr ? e.stderr.toString() : e.message };\n}\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 1280,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "922da46c9aff7913",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "DELETE /fleet/cache/apt",
+        "url": "/fleet/cache/apt",
+        "method": "delete",
+        "upload": false,
+        "x": 170,
+        "y": 1340,
+        "wires": [
+            [
+                "21e9b1dc9a23102d"
+            ]
+        ]
+    },
+    {
+        "id": "21e9b1dc9a23102d",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Delete APT package",
+        "func": "const fs = global.get('fs');\nconst { execSync } = global.get('child_process');\nconst { file, name } = msg.payload;\nconst pkgFile = '/home/pi/fleet-management/vars/packages.yml';\n\nif (!file || !file.startsWith('/var/cache/apt-cacher-ng')) {\n    msg.payload = { ok: false, error: 'Invalid file path' };\n    return msg;\n}\n\ntry {\n    execSync(`sudo rm -f \"${file}\"`, { timeout: 10000 });\n\n    // Remove from apt_packages in packages.yml\n    if (name) {\n        try {\n            const lines = fs.readFileSync(pkgFile, 'utf8').split('\\n');\n            const filtered = lines.filter(function(l) {\n                const m = l.match(/^\\s+-\\s+(.+)$/);\n                return !(m && m[1].trim() === name);\n            });\n            fs.writeFileSync(pkgFile, filtered.join('\\n'));\n        } catch(e) { node.warn('Could not update packages.yml: ' + e.message); }\n    }\n\n    msg.payload = { ok: true };\n} catch(e) {\n    msg.payload = { ok: false, error: e.message };\n}\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 1340,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "89fdc54fcec78638",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "GET /fleet/cache/npm",
+        "url": "/fleet/cache/npm",
+        "method": "get",
+        "upload": false,
+        "x": 160,
+        "y": 1400,
+        "wires": [
+            [
+                "d134357c6504909c"
+            ]
+        ]
+    },
+    {
+        "id": "d134357c6504909c",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "List NPM cache",
+        "func": "const fs = global.get('fs');\nconst { execSync } = global.get('child_process');\nconst pkgFile = '/home/pi/fleet-management/vars/packages.yml';\nlet userPackages = [];\n\ntry {\n    const raw = fs.readFileSync(pkgFile, 'utf8');\n    let inSection = false;\n    raw.split('\\n').forEach(function(line) {\n        if (line.trim() === 'npm_packages:') { inSection = true; return; }\n        if (inSection) {\n            // Stop if we hit another top-level key\n            if (line.match(/^\\w/) && !line.startsWith(' ') && !line.startsWith('-')) { inSection = false; return; }\n            const m = line.match(/^\\s+-\\s+(.+)$/);\n            if (m) userPackages.push(m[1].trim());\n        }\n    });\n} catch(e) {\n    node.warn('Could not read packages.yml: ' + e.message);\n}\n\nconst packages = [];\nfor (const name of userPackages) {\n    try {\n        const pkgRaw = execSync(`docker exec verdaccio cat /verdaccio/storage/data/${name}/package.json`, { timeout: 5000 }).toString();\n        const pkg = JSON.parse(pkgRaw);\n        const version = Object.keys(pkg.versions || {}).pop() || '—';\n        packages.push({ name, version });\n    } catch(e) {\n        packages.push({ name, version: '—' });\n    }\n}\n\nmsg.payload = { ok: true, packages };\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 1400,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "dbb3ed2e43d27cb1",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/cache/npm",
+        "url": "/fleet/cache/npm",
+        "method": "post",
+        "upload": false,
+        "x": 160,
+        "y": 1460,
+        "wires": [
+            [
+                "5e4605ed52ae6b2c"
+            ]
+        ]
+    },
+    {
+        "id": "5e4605ed52ae6b2c",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Cache NPM package",
+        "func": "const fs = global.get('fs');\nconst { execSync } = global.get('child_process');\nconst { name } = msg.payload;\nconst pkgFile = '/home/pi/fleet-management/vars/packages.yml';\n\nif (!name) { msg.payload = { ok: false, error: 'Package name required' }; return msg; }\n\ntry {\n    execSync(`mkdir -p /tmp/npm-cache-temp && cd /tmp/npm-cache-temp && npm install ${name} --registry http://localhost:4873 --prefer-online 2>&1`, { timeout: 120000 });\n    execSync(`rm -rf /tmp/npm-cache-temp`);\n\n    // Add to packages.yml if not already present\n    let lines = [];\n    try { lines = fs.readFileSync(pkgFile, 'utf8').split('\\n'); } catch(e) {}\n    const already = lines.some(function(l) { return l.trim() === '- ' + name || l.trim() === '-  ' + name; });\n    if (!already) {\n        // Find or create npm_packages section\n        const sectionIdx = lines.findIndex(function(l) { return l.trim() === 'npm_packages:'; });\n        if (sectionIdx >= 0) {\n            lines.splice(sectionIdx + 1, 0, ' - ' + name);\n        } else {\n            if (lines.length && lines[lines.length-1] !== '') lines.push('');\n            lines.push('npm_packages:');\n            lines.push(' - ' + name);\n        }\n        fs.writeFileSync(pkgFile, lines.join('\\n'));\n    }\n\n    msg.payload = { ok: true };\n} catch(e) {\n    msg.payload = { ok: false, error: e.stderr ? e.stderr.toString() : e.message };\n}\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 1460,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "8b1676e7210e3f54",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "DELETE /fleet/cache/npm",
+        "url": "/fleet/cache/npm",
+        "method": "delete",
+        "upload": false,
+        "x": 170,
+        "y": 1520,
+        "wires": [
+            [
+                "231a7f8c7a7bcf63"
+            ]
+        ]
+    },
+    {
+        "id": "231a7f8c7a7bcf63",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Delete NPM package",
+        "func": "const fs = global.get('fs');\nconst { execSync } = global.get('child_process');\nconst { name } = msg.payload;\nconst pkgFile = '/home/pi/fleet-management/vars/packages.yml';\n\nif (!name) { msg.payload = { ok: false, error: 'Package name required' }; return msg; }\n\ntry {\n    execSync(`docker exec verdaccio rm -rf /verdaccio/storage/data/${name}`, { timeout: 10000 });\n\n    // Remove from packages.yml\n    try {\n        const lines = fs.readFileSync(pkgFile, 'utf8').split('\\n');\n        const filtered = lines.filter(function(l) {\n            return l.trim() !== '- ' + name && l.trim() !== '-  ' + name;\n        });\n        fs.writeFileSync(pkgFile, filtered.join('\\n'));\n    } catch(e) { node.warn('Could not update packages.yml: ' + e.message); }\n\n    msg.payload = { ok: true };\n} catch(e) {\n    msg.payload = { ok: false, error: e.message };\n}\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 440,
+        "y": 1520,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "6ddd31db0b9d85a4",
+        "type": "http response",
+        "z": "956095503019cbf0",
+        "name": "JSON response",
+        "statusCode": "200",
+        "headers": {
+            "content-type": "application/json"
+        },
+        "x": 1140,
+        "y": 1000,
+        "wires": []
+    },
+    {
+        "id": "ce6dbb8a944b4aac",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/run",
+        "url": "/fleet/run",
+        "method": "post",
+        "upload": false,
+        "x": 140,
+        "y": 1580,
+        "wires": [
+            [
+                "945e9f9c8368bde4"
+            ]
+        ]
+    },
+    {
+        "id": "945e9f9c8368bde4",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Build ansible command",
+        "func": "\n\nconst {playbook, limit, extra_vars} = msg.payload;\nlet cmd = `ANSIBLE_CONFIG=/home/pi/fleet-management/ansible.cfg ansible-playbook -i /home/pi/fleet-management/inventory.ini /home/pi/fleet-management/${playbook}`;\nif(limit) cmd += ` --limit ${limit}`;\nif(extra_vars) cmd += ` -e \"${extra_vars}\"`;\n\nif(msg.payload.playbook === '__shell__') {\n    cmd = `ANSIBLE_CONFIG=/home/pi/fleet-management/ansible.cfg ansible ${msg.payload.limit} -i /home/pi/fleet-management/inventory.ini -m shell -a \"${msg.payload.command}\" --become`;\n}\nnode.warn('PAYLOAD: ' + JSON.stringify(msg.payload));\nnode.warn('CMD: ' + cmd);\nmsg.payload = cmd;\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 430,
+        "y": 1580,
+        "wires": [
+            [
+                "1772b3dc8e0ed650"
+            ]
+        ]
+    },
+    {
+        "id": "1772b3dc8e0ed650",
+        "type": "exec",
+        "z": "956095503019cbf0",
+        "command": "",
+        "addpay": true,
+        "append": "",
+        "useSpawn": "false",
+        "timer": "300",
+        "winHide": false,
+        "oldrc": false,
+        "name": "Run ansible",
+        "x": 650,
+        "y": 1260,
+        "wires": [
+            [
+                "93a6b1dbe5d93213"
+            ],
+            [
+                "e47dddd022d9eab0"
+            ],
+            [
+                "82b0f623adc3ed5e"
+            ]
+        ]
+    },
+    {
+        "id": "93a6b1dbe5d93213",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Format output",
+        "func": "// const out=typeof msg.payload==='object'?JSON.stringify(msg.payload,null,2):String(msg.payload||'');\n// msg.payload={ok:true,output:out};\n// return msg;\n\nlet result = msg.payload;\nmsg.payload = { ok: true, output: result };\nreturn msg; \n// msg.res.json({ ok: true, output: result });\n// return null; // stops msg flowing to http-response node",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 860,
+        "y": 1240,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "c49d2f45de07d1d8",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/facts",
+        "url": "/fleet/facts",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 140,
+        "y": 800,
+        "wires": [
+            [
+                "c6af148ab756de6e"
+            ]
+        ]
+    },
+    {
+        "id": "c6af148ab756de6e",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "get facts",
+        "func": "const { execSync } = global.get('child_process');\n\ntry {\n    const raw = execSync(\n        `ANSIBLE_CONFIG=/home/pi/fleet-management/ansible.cfg ansible fleet -i /home/pi/fleet-management/inventory.ini -m setup -a \"filter=ansible_hostname,ansible_default_ipv4,ansible_distribution,ansible_distribution_version\" 2>&1`,\n        { timeout: 120000 }\n    ).toString();\n\n    const aptRaw = execSync(\n        `ANSIBLE_CONFIG=/home/pi/fleet-management/ansible.cfg ansible fleet -i /home/pi/fleet-management/inventory.ini -m shell -a \"cat /etc/apt/apt.conf.d/01proxy 2>/dev/null || echo MISSING\" 2>&1`,\n        { timeout: 60000 }\n    ).toString();\n\n    const npmRaw = execSync(\n        `ANSIBLE_CONFIG=/home/pi/fleet-management/ansible.cfg ansible fleet -i /home/pi/fleet-management/inventory.ini -m shell -a \"npm config get registry 2>/dev/null || echo MISSING\" 2>&1`,\n        { timeout: 60000 }\n    ).toString();\n\n    node.warn('APT RAW FULL: ' + JSON.stringify(aptRaw));\n    node.warn('NPM RAW FULL: ' + JSON.stringify(npmRaw));\n\n    const results = {};\n\n    // Multi-line setup output: collect JSON block per host using brace-depth tracking\n    const lines = raw.split('\\n');\n    let currentHost = null;\n    let jsonBuffer = [];\n    let collecting = false;\n    let braceDepth = 0;\n\n    lines.forEach(function(line) {\n        const hostMatch = line.match(/^(\\S+)\\s*\\|\\s*SUCCESS\\s*=>\\s*(\\{.*)$/);\n        if (hostMatch) {\n            currentHost = hostMatch[1];\n            const partial = hostMatch[2];\n            jsonBuffer = [partial];\n            braceDepth = (partial.match(/\\{/g)||[]).length - (partial.match(/\\}/g)||[]).length;\n            if (braceDepth <= 0) {\n                try {\n                    const facts = JSON.parse(partial);\n                    const af = facts.ansible_facts || {};\n                    if (!results[currentHost]) results[currentHost] = {};\n                    results[currentHost].hostname = af.ansible_hostname || '—';\n                    results[currentHost].mac = (af.ansible_default_ipv4 || {}).macaddress || '—';\n                    results[currentHost].os = af.ansible_distribution && af.ansible_distribution_version\n                        ? af.ansible_distribution + ' ' + af.ansible_distribution_version : '—';\n                } catch(e) {}\n                collecting = false;\n            } else {\n                collecting = true;\n            }\n            return;\n        }\n        if (collecting && currentHost) {\n            jsonBuffer.push(line);\n            braceDepth += (line.match(/\\{/g)||[]).length - (line.match(/\\}/g)||[]).length;\n            if (braceDepth <= 0) {\n                collecting = false;\n                try {\n                    const facts = JSON.parse(jsonBuffer.join('\\n'));\n                    const af = facts.ansible_facts || {};\n                    if (!results[currentHost]) results[currentHost] = {};\n                    results[currentHost].hostname = af.ansible_hostname || '—';\n                    results[currentHost].mac = (af.ansible_default_ipv4 || {}).macaddress || '—';\n                    results[currentHost].os = af.ansible_distribution && af.ansible_distribution_version\n                        ? af.ansible_distribution + ' ' + af.ansible_distribution_version : '—';\n                } catch(e) {\n                    node.warn('Facts parse error for ' + currentHost + ': ' + e.message);\n                }\n                currentHost = null;\n                jsonBuffer = [];\n            }\n        }\n    });\n\n    // APT proxy\n    const aptLines = aptRaw.split('\\n');\n    aptLines.forEach(function(line, i) {\n        const hostMatch = line.match(/^(\\S+)\\s*\\|\\s*(?:CHANGED|SUCCESS).*>>$/);\n        if (!hostMatch) return;\n        const host = hostMatch[1];\n        const output = (aptLines[i+1]||'').trim();\n        if (!results[host]) results[host] = {};\n        results[host].apt_proxy = output === 'MISSING' || output === '' ? false : true;\n    });\n\n    // NPM registry\n    const npmLines = npmRaw.split('\\n');\n    npmLines.forEach(function(line, i) {\n        const hostMatch = line.match(/^(\\S+)\\s*\\|\\s*(?:CHANGED|SUCCESS).*>>$/);\n        if (!hostMatch) return;\n        const host = hostMatch[1];\n        const output = (npmLines[i+1]||'').trim();\n        if (!results[host]) results[host] = {};\n        results[host].npm_registry = output.includes('4873') ? true : false;\n    });\n\n    msg.payload = { ok: true, facts: results };\n} catch(e) {\n    msg.payload = { ok: false, error: e.message };\n}\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 800,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "01f3233e90d2490f",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "GET /fleet/wifi",
+        "url": "/fleet/wifi",
+        "method": "get",
+        "upload": false,
+        "x": 130,
+        "y": 980,
+        "wires": [
+            [
+                "7a164bc3acf1a92f"
+            ]
+        ]
+    },
+    {
+        "id": "7a164bc3acf1a92f",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Get WiFi profiles",
+        "func": "const fs = global.get('fs');\nconst path = '/home/pi/fleet-management/vars/wifi-profiles.json';\ntry {\n    const raw = fs.readFileSync(path, 'utf8');\n    msg.payload = JSON.parse(raw);\n} catch(e) {\n    msg.payload = { wifi_profiles: [] };\n}\nreturn msg;",
+        "outputs": 1,
+        "x": 460,
+        "y": 980,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "01c9900b12a8dff1",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/wifi",
+        "url": "/fleet/wifi",
+        "method": "post",
+        "upload": false,
+        "x": 140,
+        "y": 1040,
+        "wires": [
+            [
+                "ed3dc19b908ccb98"
+            ]
+        ]
+    },
+    {
+        "id": "ed3dc19b908ccb98",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Add WiFi profile",
+        "func": "const fs = global.get('fs');\nconst path = '/home/pi/fleet-management/vars/wifi-profiles.json';\nconst body = msg.payload;\nconst { ssid, security } = body;\n\nif(!ssid){ msg.payload = { ok: false, error: 'SSID is required' }; return msg; }\n\nif(security === 'wpa2-personal' && !body.passkey){\n    msg.payload = { ok: false, error: 'Passkey is required for WPA2 Personal' };\n    return msg;\n}\n\nif(security === 'wpa2-enterprise' && (!body.identity || !body.password || !body.ca_cert)){\n    msg.payload = { ok: false, error: 'Identity, password and CA cert are required for WPA2 Enterprise' };\n    return msg;\n}\n\nlet data = { wifi_profiles: [] };\ntry { data = JSON.parse(fs.readFileSync(path, 'utf8')); } catch(e) {}\n\nif(data.wifi_profiles.find(function(p){ return p.ssid === ssid; })){\n    msg.payload = { ok: false, error: 'A profile with this SSID already exists' };\n    return msg;\n}\n\ndata.wifi_profiles.push(body);\ndata.wifi_profiles.sort(function(a,b){ return b.priority - a.priority; });\nfs.writeFileSync(path, JSON.stringify(data, null, 2));\nmsg.payload = { ok: true };\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 1040,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "e887b87213a39098",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "PUT /fleet/wifi",
+        "url": "/fleet/wifi",
+        "method": "put",
+        "upload": false,
+        "x": 130,
+        "y": 1100,
+        "wires": [
+            [
+                "f9a87b44a33545f9"
+            ]
+        ]
+    },
+    {
+        "id": "f9a87b44a33545f9",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Edit WiFi profile",
+        "func": "const fs = global.get('fs');\nconst path = '/home/pi/fleet-management/vars/wifi-profiles.json';\nconst body = msg.payload;\nconst { original_ssid, ssid, security } = body;\n\nif(!ssid){ msg.payload = { ok: false, error: 'SSID is required' }; return msg; }\n\nif(security === 'wpa2-personal' && !body.passkey){\n    msg.payload = { ok: false, error: 'Passkey is required for WPA2 Personal' };\n    return msg;\n}\n\nif(security === 'wpa2-enterprise' && (!body.identity || !body.password || !body.ca_cert)){\n    msg.payload = { ok: false, error: 'Identity, password and CA cert are required for WPA2 Enterprise' };\n    return msg;\n}\n\nlet data = { wifi_profiles: [] };\ntry { data = JSON.parse(fs.readFileSync(path, 'utf8')); } catch(e) {}\n\nconst idx = data.wifi_profiles.findIndex(function(p){ return p.ssid === original_ssid; });\nif(idx === -1){ msg.payload = { ok: false, error: 'Profile not found' }; return msg; }\n\ndata.wifi_profiles[idx] = body;\ndata.wifi_profiles.sort(function(a,b){ return b.priority - a.priority; });\nfs.writeFileSync(path, JSON.stringify(data, null, 2));\nmsg.payload = { ok: true };\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 460,
+        "y": 1100,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "14b839d8b2c666ee",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "DELETE /fleet/wifi",
+        "url": "/fleet/wifi",
+        "method": "delete",
+        "upload": false,
+        "x": 150,
+        "y": 1160,
+        "wires": [
+            [
+                "ee2d663f981267bb"
+            ]
+        ]
+    },
+    {
+        "id": "ee2d663f981267bb",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Delete WiFi profile",
+        "func": "const fs = global.get('fs');\nconst path = '/home/pi/fleet-management/vars/wifi-profiles.json';\nconst { ssid } = msg.payload;\nif(!ssid) {\n    msg.payload = { ok: false, error: 'SSID is required' };\n    return msg;\n}\nlet data = { wifi_profiles: [] };\ntry { data = JSON.parse(fs.readFileSync(path, 'utf8')); } catch(e) {}\ndata.wifi_profiles = data.wifi_profiles.filter(p => p.ssid !== ssid);\nfs.writeFileSync(path, JSON.stringify(data, null, 2));\nmsg.payload = { ok: true };\nreturn msg;",
+        "outputs": 1,
+        "x": 450,
+        "y": 1160,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "cca08ed27bd89c81",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "POST /fleet/fix-proxy",
+        "url": "/fleet/fix-proxy",
+        "method": "post",
+        "upload": false,
+        "skipBodyParsing": false,
+        "swaggerDoc": "",
+        "x": 150,
+        "y": 860,
+        "wires": [
+            [
+                "4aa0e2fbff125f8c"
+            ]
+        ]
+    },
+    {
+        "id": "4aa0e2fbff125f8c",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "fix proxy",
+        "func": "const { execSync } = global.get('child_process');\nconst { name, control_pi_ip } = msg.payload;\n\nif(!name || !control_pi_ip){\n    msg.payload = { ok: false, error: 'Device name and control Pi IP required' };\n    return msg;\n}\n\ntry {\n    execSync(\n        `ansible fleet -i /home/pi/fleet-management/inventory.ini ` +\n        `-m copy -a \"content='Acquire::http::Proxy \\\\\"http://${control_pi_ip}:3142\\\\\";' dest=/etc/apt/apt.conf.d/01proxy\" ` +\n        `--limit ${name} --become 2>&1`,\n        { timeout: 60000 }\n    );\n    execSync(\n        `ansible fleet -i /home/pi/fleet-management/inventory.ini ` +\n        `-m command -a \"npm config set registry http://${control_pi_ip}:4873\" ` +\n        `--limit ${name} --become 2>&1`,\n        { timeout: 60000 }\n    );\n    msg.payload = { ok: true };\n} catch(e) {\n    msg.payload = { ok: false, error: e.message };\n}\nreturn msg;",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 480,
+        "y": 860,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "e47dddd022d9eab0",
+        "type": "debug",
+        "z": "956095503019cbf0",
+        "name": "debug 11",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 980,
+        "y": 1480,
+        "wires": []
+    },
+    {
+        "id": "134ca8c762b6aa4c",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "",
+        "url": "/fleet/flows",
+        "method": "get",
+        "x": 140,
+        "y": 1640,
+        "wires": [
+            [
+                "22c90adfe2f40e13"
+            ]
+        ]
+    },
+    {
+        "id": "22c90adfe2f40e13",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "List/read flow files",
+        "func": "const fs = global.get('fs');\nconst path = '/home/pi/fleet-management/flows';\nconst queryPath = msg.req.query && msg.req.query.path;\n\n// If ?path= given, return parsed JSON of that specific file\nif(queryPath){\n  try{\n    const raw = fs.readFileSync(queryPath, 'utf8');\n    const nodes = JSON.parse(raw);\n    msg.payload = {ok:true, nodes: Array.isArray(nodes) ? nodes : [nodes]};\n  } catch(e){\n    msg.payload = {ok:false, error: e.message};\n  }\n  return msg;\n}\n\n// Otherwise list all .json files under flows/groups and flows/devices\nconst files = [];\nconst dirs = ['groups','devices'];\ndirs.forEach(function(dir){\n  const dirPath = path + '/' + dir;\n  node.warn('PATH: ' + dirPath);\n  try{\n    fs.readdirSync(dirPath).forEach(function(file){\n      if(!file.endsWith('.json')) return;\n      const target = file.replace('.flows.json','').replace('.json','');\n      files.push({\n        name: file,\n        path: dirPath + '/' + file,\n        dir: dir,\n        target: target\n      });\n    });\n  } catch(e){\n    node.warn('Error: ' + e);\n  }\n});\nmsg.payload = {ok:true, files: files};\nreturn msg;\n",
+        "outputs": 1,
+        "timeout": "",
+        "noerr": 0,
+        "initialize": "",
+        "finalize": "",
+        "libs": [],
+        "x": 450,
+        "y": 1640,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "ee57cec72ac59e6a",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "",
+        "url": "/fleet/flows",
+        "method": "post",
+        "x": 140,
+        "y": 1700,
+        "wires": [
+            [
+                "c9d8daaa31f54423"
+            ]
+        ]
+    },
+    {
+        "id": "c9d8daaa31f54423",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Create flow file",
+        "func": "const fs = global.get('fs');\nconst {dir, name, content} = msg.payload;\nif(!dir || !name || !content){ msg.payload={ok:false,error:'Missing dir, name or content'}; return msg; }\nconst base = '/home/pi/fleet-management/flows';\nconst allowed = ['groups','devices'];\nif(!allowed.includes(dir)){ msg.payload={ok:false,error:'Invalid directory'}; return msg; }\nconst filePath = base + '/' + dir + '/' + name;\ntry{\n  JSON.parse(content);\n  fs.writeFileSync(filePath, content);\n  msg.payload = {ok:true};\n} catch(e){ msg.payload={ok:false,error:e.message}; }\nreturn msg;",
+        "outputs": 1,
+        "x": 460,
+        "y": 1700,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "25d7e3aa52bde875",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "",
+        "url": "/fleet/flows",
+        "method": "put",
+        "x": 140,
+        "y": 1760,
+        "wires": [
+            [
+                "09900346d04a5c07"
+            ]
+        ]
+    },
+    {
+        "id": "09900346d04a5c07",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Update/rename flow file",
+        "func": "const fs = global.get('fs');\nconst {path, action, content, newName, dir} = msg.payload;\nif(!path){ msg.payload={ok:false,error:'Missing path'}; return msg; }\ntry{\n  if(action === 'rename'){\n    if(!newName || !dir){ msg.payload={ok:false,error:'Missing newName or dir'}; return msg; }\n    const base = '/home/pi/fleet-management/flows/' + dir + '/';\n    const newPath = base + newName;\n    fs.renameSync(path, newPath);\n    msg.payload = {ok:true};\n  } else {\n    if(!content){ msg.payload={ok:false,error:'Missing content'}; return msg; }\n    JSON.parse(content);\n    fs.writeFileSync(path, content);\n    msg.payload = {ok:true};\n  }\n} catch(e){ msg.payload={ok:false,error:e.message}; }\nreturn msg;",
+        "outputs": 1,
+        "x": 430,
+        "y": 1760,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "ad800e82df8f458d",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "",
+        "url": "/fleet/flows",
+        "method": "delete",
+        "x": 150,
+        "y": 1820,
+        "wires": [
+            [
+                "1552408bdddc09c0"
+            ]
+        ]
+    },
+    {
+        "id": "1552408bdddc09c0",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Delete flow file",
+        "func": "const fs = global.get('fs');\nconst {path} = msg.payload;\nif(!path){ msg.payload={ok:false,error:'Missing path'}; return msg; }\nconst base = '/home/pi/fleet-management/flows';\nif(!path.startsWith(base)){ msg.payload={ok:false,error:'Path outside flows directory'}; return msg; }\ntry{\n  fs.unlinkSync(path);\n  msg.payload = {ok:true};\n} catch(e){ msg.payload={ok:false,error:e.message}; }\nreturn msg;",
+        "outputs": 1,
+        "x": 460,
+        "y": 1820,
+        "wires": [
+            [
+                "6ddd31db0b9d85a4"
+            ]
+        ]
+    },
+    {
+        "id": "82b0f623adc3ed5e",
+        "type": "debug",
+        "z": "956095503019cbf0",
+        "name": "debug 14",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "statusVal": "",
+        "statusType": "auto",
+        "x": 982,
+        "y": 1541,
+        "wires": []
+    },
+    {
+        "id": "0a4e4d343876f14e",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "",
+        "url": "/fleet/settings",
+        "method": "get",
+        "x": 150,
+        "y": 200,
+        "wires": [
+            [
+                "774f1c93beb9049a"
+            ]
+        ]
+    },
+    {
+        "id": "774f1c93beb9049a",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "List/read settings files",
+        "func": "const fs = global.get('fs');\nconst base = '/home/pi/fleet-management/files';\nconst queryPath = msg.req.query && msg.req.query.path;\nif(queryPath){\n  try{\n    const content = fs.readFileSync(queryPath,'utf8');\n    msg.payload = {ok:true, content};\n  } catch(e){ msg.payload={ok:false,error:e.message}; }\n  return msg;\n}\ntry{\n  const files = fs.readdirSync(base)\n    .filter(function(f){ return f.endsWith('.js') || f.endsWith('.json'); })\n    .map(function(f){ return {name:f, path:base+'/'+f}; });\n  msg.payload = {ok:true, files};\n} catch(e){ msg.payload={ok:false,error:e.message,files:[]}; }\nreturn msg;",
+        "outputs": 1,
+        "x": 440,
+        "y": 200,
+        "wires": [
+            [
+                "ce51678f5104aba5"
+            ]
+        ]
+    },
+    {
+        "id": "08bf50f277647f76",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "",
+        "url": "/fleet/settings",
+        "method": "post",
+        "x": 150,
+        "y": 260,
+        "wires": [
+            [
+                "0b4fb7d22acfad03"
+            ]
+        ]
+    },
+    {
+        "id": "0b4fb7d22acfad03",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Create settings file",
+        "func": "const fs = global.get('fs');\nconst {name, content} = msg.payload;\nif(!name||!content){ msg.payload={ok:false,error:'Missing name or content'}; return msg; }\nconst base = '/home/pi/fleet-management/files';\nconst filePath = base + '/' + name;\ntry{ fs.writeFileSync(filePath, content); msg.payload={ok:true}; }\ncatch(e){ msg.payload={ok:false,error:e.message}; }\nreturn msg;",
+        "outputs": 1,
+        "x": 450,
+        "y": 260,
+        "wires": [
+            [
+                "ce51678f5104aba5"
+            ]
+        ]
+    },
+    {
+        "id": "e67238f8e7dc9368",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "",
+        "url": "/fleet/settings",
+        "method": "put",
+        "x": 150,
+        "y": 320,
+        "wires": [
+            [
+                "e973894c961e73c7"
+            ]
+        ]
+    },
+    {
+        "id": "e973894c961e73c7",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Update/rename settings file",
+        "func": "const fs = global.get('fs');\nconst {path, action, content, newName} = msg.payload;\nif(!path){ msg.payload={ok:false,error:'Missing path'}; return msg; }\ntry{\n  if(action==='rename'){\n    if(!newName){ msg.payload={ok:false,error:'Missing newName'}; return msg; }\n    const base = '/home/pi/fleet-management/files/';\n    fs.renameSync(path, base+newName);\n    msg.payload={ok:true};\n  } else {\n    if(!content){ msg.payload={ok:false,error:'Missing content'}; return msg; }\n    fs.writeFileSync(path, content);\n    msg.payload={ok:true};\n  }\n} catch(e){ msg.payload={ok:false,error:e.message}; }\nreturn msg;",
+        "outputs": 1,
+        "x": 420,
+        "y": 320,
+        "wires": [
+            [
+                "ce51678f5104aba5"
+            ]
+        ]
+    },
+    {
+        "id": "08bdb7b2b0aaecd1",
+        "type": "http in",
+        "z": "956095503019cbf0",
+        "name": "",
+        "url": "/fleet/settings",
+        "method": "delete",
+        "x": 160,
+        "y": 380,
+        "wires": [
+            [
+                "334b7dd366cf3006"
+            ]
+        ]
+    },
+    {
+        "id": "334b7dd366cf3006",
+        "type": "function",
+        "z": "956095503019cbf0",
+        "name": "Delete settings file",
+        "func": "const fs = global.get('fs');\nconst {path} = msg.payload;\nif(!path){ msg.payload={ok:false,error:'Missing path'}; return msg; }\nconst base = '/home/pi/fleet-management/files';\nif(!path.startsWith(base)){ msg.payload={ok:false,error:'Path outside files directory'}; return msg; }\ntry{ fs.unlinkSync(path); msg.payload={ok:true}; }\ncatch(e){ msg.payload={ok:false,error:e.message}; }\nreturn msg;",
+        "outputs": 1,
+        "x": 450,
+        "y": 380,
+        "wires": [
+            [
+                "ce51678f5104aba5"
+            ]
+        ]
+    }
+]
