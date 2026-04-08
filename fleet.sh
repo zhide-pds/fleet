@@ -148,54 +148,22 @@ for i in $(seq 1 10); do
 done
 
 # =============================================================================
-section "Configuring Node-RED settings.js"
+section "Installing Node-RED settings.js"
 # =============================================================================
 
-[[ -f "$SETTINGS_JS" ]] || fail "settings.js not found at ${SETTINGS_JS}. Is Node-RED installed?"
+[[ -d "$NODERED_DIR" ]] || fail "Node-RED user directory not found at ${NODERED_DIR}. Has Node-RED been run at least once?"
 
-# Backup original
-cp "$SETTINGS_JS" "${SETTINGS_JS}.bak"
-log "settings.js backed up to ${SETTINGS_JS}.bak"
-
-# Patch 1: Add httpStatic (after uiPort line)
-if grep -q "httpStatic:" "$SETTINGS_JS"; then
-    # Already has httpStatic — update it
-    sudo sed -i "s|.*httpStatic:.*|    httpStatic: '${FLEET_DIR}/public',|" "$SETTINGS_JS"
-    log "httpStatic updated"
-else
-    # Insert after uiPort line
-    sudo sed -i "/uiPort: process.env.PORT/a\\    httpStatic: '${FLEET_DIR}/public'," "$SETTINGS_JS"
-    log "httpStatic added"
+# Backup existing settings.js if present
+if [[ -f "$SETTINGS_JS" ]]; then
+    cp "$SETTINGS_JS" "${SETTINGS_JS}.bak"
+    log "Existing settings.js backed up to ${SETTINGS_JS}.bak"
 fi
 
-# Patch 2: Enable functionExternalModules
-if grep -q "functionExternalModules:" "$SETTINGS_JS"; then
-    sudo sed -i "s|.*functionExternalModules:.*|    functionExternalModules: true,|" "$SETTINGS_JS"
-else
-    sudo sed -i "s|//functionExternalModules: true,|    functionExternalModules: true,|" "$SETTINGS_JS"
-fi
-log "functionExternalModules enabled"
-
-# Patch 3: Set functionGlobalContext with fs and child_process
-if grep -q "functionGlobalContext:" "$SETTINGS_JS"; then
-    # Replace the entire functionGlobalContext block
-    sudo python3 - "$SETTINGS_JS" << 'PYEOF'
-import re, sys
-path = sys.argv[1]
-with open(path) as f:
-    content = f.read()
-
-old = re.search(r'functionGlobalContext:\s*\{[^}]*\}', content)
-if old:
-    content = content[:old.start()] + "functionGlobalContext: {\n        fs: require('fs'),\n        child_process: require('child_process')\n    }" + content[old.end():]
-    with open(path, 'w') as f:
-        f.write(content)
-    print("functionGlobalContext replaced")
-else:
-    print("functionGlobalContext block not found — skipping")
-PYEOF
-fi
-log "functionGlobalContext configured"
+# Download and replace with repo version
+curl -fsSL "${BASE_URL}/settings.js" -o "$SETTINGS_JS" \
+    || fail "Failed to download settings.js from GitHub"
+sudo chown pi:pi "$SETTINGS_JS"
+log "settings.js replaced from GitHub"
 
 # =============================================================================
 section "Configuring sudoers for Node-RED"
@@ -225,10 +193,9 @@ section "Importing Node-RED flow"
 # =============================================================================
 
 FLOW_FILE="/tmp/fleet-flows.json"
-curl -fsSL "https://github.com/${GITHUB_USER}/${GITHUB_REPO}/raw/${GITHUB_BRANCH}/flow.json" \
-    -o "$FLOW_FILE" || fail "Failed to download flow file from GitHub"
+curl -fsSL "${BASE_URL}/flow.json" \
+    -o "$FLOW_FILE" || fail "Failed to download flow.json from GitHub"
 
-# Copy to Node-RED userdir
 cp "$FLOW_FILE" "${NODERED_DIR}/flows.json"
 sudo chown pi:pi "${NODERED_DIR}/flows.json"
 log "Flow file copied to ${NODERED_DIR}/flows.json"
@@ -250,7 +217,6 @@ fi
 section "Setting up apt-cacher-ng permissions"
 # =============================================================================
 
-# apt-cacher-ng container runs as its own user — fix after first start
 sudo chown -R apt-cacher-ng:apt-cacher-ng /var/cache/apt-cacher-ng /var/log/apt-cacher-ng 2>/dev/null || \
     warn "Could not chown apt-cacher-ng dirs — may need manual fix after first run"
 
