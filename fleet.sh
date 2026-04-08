@@ -225,7 +225,7 @@ section "Importing Node-RED flow"
 # =============================================================================
 
 FLOW_FILE="/tmp/fleet-flows.json"
-curl -fsSL "https://github.com/${GITHUB_USER}/${GITHUB_REPO}/raw/${GITHUB_BRANCH}/flows__3_.json" \
+curl -fsSL "https://github.com/${GITHUB_USER}/${GITHUB_REPO}/raw/${GITHUB_BRANCH}/flow.json" \
     -o "$FLOW_FILE" || fail "Failed to download flow file from GitHub"
 
 # Copy to Node-RED userdir
