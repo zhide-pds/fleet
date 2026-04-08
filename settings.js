@@ -540,7 +540,7 @@ module.exports = {
      *    global.get("os")
      */
     functionGlobalContext: {
-        bigInt:require("big-integer"),
+        //bigInt:require("big-integer"),
 	fs: require('fs'),
 	child_process: require('child_process')
     },
