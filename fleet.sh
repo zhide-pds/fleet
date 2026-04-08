@@ -217,7 +217,9 @@ fi
 section "Setting up apt-cacher-ng permissions"
 # =============================================================================
 
-sudo chown -R apt-cacher-ng:apt-cacher-ng /var/cache/apt-cacher-ng /var/log/apt-cacher-ng 2>/dev/null || \
+ACNG_UID=$(docker exec apt-cacher-ng id -u 2>/dev/null || echo "105")
+ACNG_GID=$(docker exec apt-cacher-ng id -g 2>/dev/null || echo "65534")
+sudo chown -R "${ACNG_UID}:${ACNG_GID}" /var/cache/apt-cacher-ng /var/log/apt-cacher-ng 2>/dev/null || \
     warn "Could not chown apt-cacher-ng dirs — may need manual fix after first run"
 
 # =============================================================================
